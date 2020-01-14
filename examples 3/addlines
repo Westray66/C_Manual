@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+ 
+my ($filename) = @ARGV;
+open(my $fh, '<:encoding(UTF-8)', $filename)
+  or die "Could not open file '$filename' $!";
+
+
+my ($fname,$ftype) = split(/\./, $filename);
+
+print "name: $filename $fname $ftype \n";
+
+open(my $out, '>', "../code/$fname.tex")
+  or die "Could not open file ../code/fname.tex";
+
+printf $out "\\begin{lstlisting}[language=C,showstringspaces=false, caption={File: $fname.c},captionpos=b,label=$fname]\n";
+
+my $num = 0;
+while (my $row = <$fh>)
+{
+$num ++;
+  chomp $row;
+  print $out " $num $row\n" if ($num<10);
+  print      " $num $row\n" if ($num<10);
+  print $out "$num $row\n" if ($num>=10);
+  print      "$num $row\n" if ($num>=10);
+}
+
+printf $out "\\end{lstlisting}\n";
+print "complete!!!\n";
+close $fh;
+close $out;
+
+
+
