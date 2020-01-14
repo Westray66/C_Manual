@@ -1,0 +1,184 @@
+\section{Accessing assembly code from C} \label{assembler} \index{assembler}
+
+For embedded systems it is important to access the lowest possible levels of the hardware. These low-level features are hardware specific and not always supported by the programming languages available. To achieve this capability the native assembly language is used. C has two methods of accessing assembly code. The first method involves integrating assembly instructions directly into C source code using an inline assembler (see section \ref{inlineass}) and the second method is by calling assembly routines directly (see section \ref{callingass}). 
+
+These interfaces also allow access to more advanced features of a processor. For example, access to \textit{Single Instruction Multiple Data} (SIMD) instructions for multimedia or fast matrices operations.
+
+Accessing assembly code is architecture and compiler specific. We will provide examples which show accessing the ARMv7-A Instructions Set Architecture (ISA) using the GNU C Compiler. The calling convention for each architecture is unique and is often described in a specification called the \textit{Procedure Call Standard}. Even-though architectures differs in convention the underlying principles remain the same. 
+
+
+\subsection{Example: ARM Procedure Call Standard} \label{apcs}
+
+This is the calling convention for ARMv7-A ISA. This is used by the GNU C Compiler to call functions on compatible hardware. If you are writing assembly code which is called by C then you have to adhere to the calling convention, non-adherence can potentially result in unpredictable behavior. The information in this section was taken from \textit{Procedure Call Standard for the ARM Architecture, ARM IHI 0042F, current through ABI release 2.10}. Note, ABI stands for Application Binary Interface. 
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | c | l |}
+    \hline
+    REG & NAME & DESCRIPTION \\ \hline
+    r0  & a1   & parameter, result or scratch  \\ \hline
+    r1  & a2   & parameter, result, or scratch  \\ \hline
+    r2  & a3   & parameter or scratch \\ \hline
+    r3  & a4   & parameter or scratch \\ \hline  
+    r4  & v1   & variable  \\ \hline
+    r5  & v2   & variable  \\ \hline
+    r6  & v3   & variable  \\ \hline  
+    r7  & v4   & variable  \\ \hline
+    r8  & v5   & variable  \\ \hline
+    r9  & v6, SB or TR & platform variable   \\ \hline  
+    r10 & v7   & variable   \\ \hline
+    r11 & v8  & variable  \\ \hline  
+    r12 & IP  & Intra-Procedure-call scratch register  \\ \hline
+    r13 & SP  & Stack Pointer \\ \hline
+    r14 & LR  & Link Register \\ \hline 
+    r15 & PC  & Program Counter\\ \hline  
+  \end{tabular}
+\caption{Register allocation}
+\label{table:pcs}
+\end{table*}
+
+Table \ref{table:pcs} show the declaration that the first four registers \textit{r0-3} are parameter passing registers. These register are used to place data into a function. They are also scratch registers meaning they can be used to hold intermediate values without any worry of corrupting the caller function. Register \textit{r0} and \textit{r1} carry the return result. It is common that only register \textit{r0} hold the return value. 
+ 
+Registers \textit{r4-8} and \textit{r10-11} are used as standard variable registers (note: r9 is special). If a function uses these registers then the registers need to be preserved and restored upon return. The caller function will assume these values are retained before and after invoking the callee function. 
+
+Register \textit{r12} (IP) and in some cases r9, are special cases which are compiler dependent. Check your compiler documentation for details. 
+
+The remaining registers \textit{r13-15} have designated architectural functions. Register \textit{r13} is the stack pointer (for calculations, preserving+restoring context and passing arguments). Register \textit{r14} is the link register which is used to hold the return address within the caller function. And finally \textit{r15} is the program counter, it points to the instruction next to be loaded into the processor. Note registers \textit{r13} and \textit{r14} can be used for general purposes (if and only if restored correctly upon exit).
+
+\subsection{Inline assembly} \label{inlineass} \index{inline assembler}
+
+Inline assembly allows assembler instructions to be inserted directly into C source code. It makes the C code hardware specific. This is useful when short assembly sequences are required to access a specific hardware features or provide some unique optimized instruction flow. It is important that the rules of the compiler are obeyed since the instructions are being embedded in the C routines.
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: inline.c},captionpos=b,label=inlineassembler]
+
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 int main(void)
+ 5 {
+ 6 int32_t d = 12345;
+ 7 int32_t s1 = 10;
+ 8 int32_t s2 = 20;
+ 9 
+10 __asm("add %[des],%[src1],%[src2]":[des]"=r"(d):[src1]"r"(s1),[src2]"r"(s2));
+11   
+12 printf("add  %d = %d + %d\n",d,s1,s2);
+13 
+14 return 0;
+15 }
+
+INTERACTION
+
+16 $ cc inline.c
+17 $ ./a.out
+18 add  30 = 10 + 20
+19 $
+
+\end{lstlisting}
+
+Listing \ref{inlineassembler} line:10 shows an \textit{add} instruction inserted into the source code using the keyword \textit{\_\_asm(...)}. The instruction adds two variables \textit{s1} and \textit{s1} together and places the destination result into a variable called \textit{d}.
+	
+\subsection{Calling assembly routines} \label{callingass}
+
+Calling assembly code is similar to calling any C function. Each architecture has a set of rules to call a function. These rules are layout by the Procedure Calling Standard, defined in section \ref{apcs}. By adhering to the rules an assembly routine can be called from C without causing issues with program. The example set out below shows a small subset of the calling convention. 
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: calling.c},captionpos=b,label=calling]
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 extern uint32_t _sumof4numbers
+ 5 (
+ 6  uint32_t a,
+ 7  uint32_t b,
+ 8  uint32_t c,
+ 9  uint32_t d
+10 );
+11 
+12 extern uint32_t _sumof5numbers 
+13 (
+14   uint32_t a,
+15   uint32_t b,
+16   uint32_t c,
+17   uint32_t d,
+18   uint32_t e
+19 );
+20 
+21 extern uint32_t _example_42(void);
+22 
+23 int main (void)
+24 {
+25 uint32_t s4,s5,d42;
+26 
+27 s4 = _sumof4numbers (1,2,3,4);
+28 s5 = _sumof5numbers (1,2,3,4,5);
+29 d42 = _example_42();
+30 
+31 printf ("Procedure Call Standard \n");
+32 printf ("-- sum(1,2,3,4)   =  %d\n",s4);
+33 printf ("-- sum(1,2,3,4,5) =  %d\n",s5);
+34 printf ("-- 42 == %d : %d\n",d42,42==d42);
+35 
+36 return 0;
+37 }
+\end{lstlisting}
+
+Listing \ref{calling} shows code which calls three assembly routines, namely \textit{\_sumof4numbers(...)}, \textit{\_sumof5numbers(...)} and \textit{\_example\_42(...)}. These routines represent different ways assembly functions can be called in C. These routines are defined as being \textit{extern's} on lines:4-21. The results of all three routines is then printed out.
+
+The first example \textit{\_sumof4numbers(...)} shows four arguments being passed into a function. The four arguments all fit into the parameter passing registers r0-3. These are defined as the parameter passing registers and scratch registers. Scratch means that they do not require preserving during the call.
+
+The second example \textit{\_sumof5numbers(...)} shows five parameters being passed, the first four fit into the standard registers, the fifth parameter is placed on the stack automatically by the compiler. 
+
+Finally the third example \textit{\_example\_42(...)} defines a function with no parameters being passed into a function.
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: arm.s},captionpos=b,label=arms]
+ 1      .text
+ 2      .global _sumof4numbers
+ 3      .global _sumof5numbers
+ 4      .global _example_42
+ 5 
+ 6 _sumof4numbers:
+ 7      add     r0,r0,r1
+ 8      add     r0,r0,r2
+ 9      add     r0,r0,r3
+10      add     r0,r0,r4
+11      bx      lr
+12 
+13 _sumof5numbers:
+14      add     r0,r0,r1
+15      add     r0,r0,r2
+16      add     r0,r0,r3
+17      add     r0,r0,r4
+18      ldmia   sp!,{r2}
+19      add     r0,r0,r2 
+20      bx      lr
+21 
+22 _example_42:
+23     push    {r4-r6,r14}  // prologue - preserve
+24     mov     r4,#40
+25     mov     r5,#2
+26     add     r0,r4,r5
+27     pop     {r4-r6,r15}  // epilogue - restore
+28 
+29     .end
+
+INTERACTION
+
+30 $ cc calling.c arm.s
+31 $ ./a.out
+32 Procedure Call Standard 
+33 -- sum(1,2,3,4)   =  10
+34 -- sum(1,2,3,4,5) =  15
+35 -- 42 == 42 : 1
+36 $
+ 
+\end{lstlisting}
+
+Listing \ref{arms} are the assembly implementations of the functions defined in listing \ref{calling}. The .text on line 1 indicates to the compiler that the information below are instructions. The .global identifies the function names to be exported and used by the linker. In this case \textit{\_sumof4numbers}, \textit{\_sumof5numbers} and \textit{\_example\_42} are all globally exported.
+
+Function \textit{\_sumof4numbers} sums four numbers passed into the routine by registers \textit{r0-3}. The result is left in register \textit{r0} and the routine returns using the instruction on line 20. The link register \textit{lr} (\textit{r14}) holds the return address of where the routine was called by the caller routine. No preserving or restoring of registers is required since all the registered effected were \textit{r0} to \textit{r3}.
+
+Function \textit{\_sumof5numbers} sums five numbers and returns the result. The first four arguments are passed into the routine the same way as \textit{\_sumof4numbers} but the fifth is passed on the stack by the compiler. This value is retrieved by the instruction on line:18. Where it pop's the stack with one register and placed the content into register \textit{r2}. Then adds that value to the sum, creating a sum of five numbers. The rest is same as the previous routine.
+
+Finally function \textit{\_example\_42}, this function takes no parameters but uses two of the variable registers \textit{r4} and \textit{r5}. To make the function compliant with the PCS, these values need to be preserved. This is achieved using the \textit{push} instruction on line:23 which pushes registers \textit{r4-6} onto the stack (\textit{r13}). It also pushes the return address (link register \textit{r14}). A calculation then occurs on lines:24-26, and the result placed into register \textit{r0}. The restore occurs on line:27, where the previously preserved registers \textit{r4-6} are restored along with the link register. The link register contents is placed directly in the program counter which returns execution to the right location in the caller function.  
+
+

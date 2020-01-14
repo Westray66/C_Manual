@@ -1,0 +1,631 @@
+\section{Control Flow}
+
+Control flow is about decision making. A decision determines the flow of a program. C has a number of useful flow control constructs.
+
+\subsection{if construct} \label{if construct}
+
+\index{if}
+
+The \textit{if} construct is the core decision making construct. It is used to test an assumption. If the assumption is correct then a true execute path is taken otherwise the statements are ignored. The listing \ref{if} shows one simple example where the assumption is a comparison of two variables \textit{a} and \textit{b}. If \textit{a} equals \textit{b} then execute the true path within the curly brackets \{ and \}. It is important to note all control constructs check whether what’s inside the parentheses is true (not 0 or not NULL).\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={Syntax if statement},captionpos=b,label=if]
+  if (a==b)
+  { 
+  printf ("true path taken\n"); 
+  }
+
+OR
+
+  if (a==b) printf ("expression = true\n");
+    
+\end{lstlisting}
+
+For the full comparison options see section \ref{comparisons}. Also note that the equivalence comparison uses two \textit{"="} as-in \textit{"=="}. Warning if a single \textit{"="} is used, the expression becomes an assignment which is perfectly legal in C. The compiler will not flag the assignment as an error. It is an expression that evaluates to \textit{true}. If we undertake any \textit{if statements} that are more than just a simple comparison, is it better to include the some extra brackets to avoid mistakes (e.g. \textit{if ((a==1)} \&\& \textit{(b==2)}).
+ 
+\subsubsection{if else construct}
+
+\index{if else}
+
+The \textit{if else} construct handles both true and false paths. The curly brackets \{ and \} allow for multiple statements. Without the curly brackets only one statement can be part of the \textit{if} construct.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={Syntax if (a==b) else construct},captionpos=b,label=iff]
+
+  if (a==b)
+  {
+  printf ("true path taken\n");
+  }
+  else
+  {
+  printf ("false path taken\n");
+  }
+
+OR
+
+  if (a==b)
+    printf ("true path taken\n");
+  else
+    printf ("false path taken\n");
+      
+OR
+
+  if (a==b)
+    printf ("true path taken\n");
+  else
+  {
+  printf ("false path taken\n");
+  }  
+  
+OR
+
+  if (a==b)
+  {
+  printf ("true path taken\n");
+  }
+  else
+    printf ("false path taken\n");
+
+\end{lstlisting}
+
+Listing \ref{iff} shows some examples of the \textit{if else} construct to give some ideas on how this construct can be used. 
+
+\subsubsection{Nested if construct}
+
+A nested \textit{if} construct is useful for more complex decision making. Listing \ref{nested} shows multiple levels. Level 1 compares whether \textit{a} is greater than \textit{b}. If that fails, level 2 checks whether \textit{a} is less than 100. If that fails then level 3 checks whether \textit{a} is less than 200.\\ 
+ 
+\begin{lstlisting}[language=C,showstringspaces=false,caption={Example nested if's},captionpos=b,label=nested]
+  if (a>b)
+  {
+  printf ("level 1: true path taken \n");
+  }
+  else if (a<100)
+    {
+    printf ("level 2: true path taken\n");
+    }
+    else if (a<200)
+      {
+      printf ("level 3: true path taken\n");
+      }
+      else
+      {
+      printf ("level 3: false path taken\n");
+      } 
+
+\end{lstlisting}
+
+Indentation is especially important. It isn't required as in the \textit{Python} scripting language, but having shape to the code allows visual correctness hints. It is a technique to avoid errors. It is also worth considering, every increase in depth increases the complexity. Every increase in complexity increases the probability of errors or instability.    
+
+\subsection{Conditional ? operator}
+
+\index{?, conditional operator}
+
+The conditional ? operator is a useful shorthand method to create simple decision making choices. It allows an expression to determine a value.
+
+\begin{lstlisting}[language=C,caption={Example conditional ? operator},captionpos=b,label=conditional]
+x = (a==b ? 12 : 13);
+\end{lstlisting}
+
+Listing \ref{conditional} shows a conditional ? operator example. If \textit{a} equals \textit{b} then \textit{x} is assigned the value 12 otherwise \textit{x} is assigned value 13. It is a useful trick in C to minimize certain evaluations and make certain decisions.
+
+\subsection{Loop constructs} \label{loops} 
+
+There are three types of loops (or constructs which repeat) in the C language, namely the \textit{while loop}, \textit{do-while loop} and the \textit{for loop}. The \textit{while loop} carries out a test at the beginning of the loop. By contrast the \textit{do-while loop} does a test at the end of the loop and finally the \textit{for loop} loops within a range by using either increments or decrements. Technically with the \textit{for loop} more complex behavior could be created. 
+
+\begin{lstlisting}[language=C,caption={Syntax for the 3 loop constructs},captionpos=b,label=3loops]
+
+1.  while (expr) // test expression at the beginning
+    {
+    statements ;
+    }
+  
+2.  do						 
+    {							  
+    statements ;				
+    }
+    while (expr); // test expression at the end
+	
+3.  for (expr1;expr2;expr3) // start, end and change expressions
+    {
+    statements ;
+    }	
+	
+\end{lstlisting}
+
+Listing \ref{3loops} shows the syntax of the three loop constructs. These constructs are present in mostly all languages. Note in some other languages the \textit{do-while} loop is sometimes known as the \textit{repeat-until} loop. Also similar to the \textit{if} construct, the curly brackets \{ and \} allow for multiple statements. Without the curly brackets only one statement can be part of the construct.
+
+
+\subsubsection{while (...) \{\} loop} \label{whileloop} 
+
+\index{while (...) \{\}}
+
+The \textit{while} loop is one of three loops available in C. The loop remains active (looping) as long as the expression controlling the loop remains true. The loop starts by having the test expression be true. No part of the while loop is executed unless the expression is satisfied.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File while1.c, while...loop base examples},captionpos=b,label=while1]
+
+ 1 #include <stdio.h>
+ 2 #include <stdbool.h>
+ 3 
+ 4 #include <stdio.h>
+ 5 #include <stdbool.h>
+ 6 
+ 7 int main (void)
+ 8 {
+ 9 int x =0;
+10 
+11 /* 1 */
+12 printf ("test 1: multiple statements\n");
+13 x=0;
+14   while (x!=2) // multiple statements;
+15   { 
+16   x++;
+17   printf ("... line %d of 2\n",x);
+18   }  
+19  
+20 /* 2 */
+21 printf ("test 2: single statements, not executed \n");
+22   while (false) printf ("... never executed\n");
+23  
+24 /* 3 */
+25 printf ("test 3: loop countdown, 2,1 end \n");
+26 x = 3;
+27  while (--x) // countdown loop
+28  {
+29  printf ("... count down %d\n",x);
+30  }
+31   
+32 return 0;
+33 }
+
+INTERACTION
+
+$ cc while1.c
+$ ./a.out
+test 1: multiple statements 
+... line 1 of 2
+... line 2 of 2
+test 2: single statements, not executed 
+test 3: loop countdown, 2,1 end 
+... count down 2
+... count down 1
+$
+    
+\end{lstlisting}
+
+Listing \ref{while1} shows some examples of using the \textit{while} loop. The first example, shown on lines:14-18, is a loop which continues until x equals 2. Inside the body of the loop, \textit{x} is incremented. A line is printed out each time the loop cycles around. The variable \textit{x} is initially set to 0 so the loop will cycle twice before exiting. 
+
+The second example on line:22 illustrates two concepts. The first concept is that a loop can be set to never execute and the second concept is that a loop can contain a single statement which does not require curly brackets.
+
+The third example on lines:27-30 is a countdown. The \textit{while} loop test is actually an expression which can both equate to a value as well as assign a value. In this case the variable \textit{x} is pre-decremented. Once the value becomes 0 the loop exits. This loop will go round twice and then exit.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File while2.c, more while...loop examples},captionpos=b,label=while2]
+
+ 1 #include <stdio.h>
+ 2 #include <stdbool.h>
+ 3 
+ 4 int main (void)
+ 5 {
+ 6 int x;
+ 7 bool a;
+ 8 
+ 9 /* 4 */
+10 printf ("test 4: simple toggle loop \n");
+11 a=true;
+12 
+13   while (a)
+14   {
+15   a = false;
+16   printf ("... line printed only once\n");
+17   }
+18 
+19 /* 5 */
+20 printf ("test 5: using break\n");
+21 x=1;
+22 
+23   while (x>0)
+24   {
+25     if (x==3) break;
+26   x++;
+27   printf ("... line is %d\n",x);
+28   }
+29 
+30 /* 6  */
+31 printf ("test 6: infinite loop press ctrl-c to escape \n"); 
+32   while (true) ;  // infinite loop that never exits
+33 
+34 return 0;
+35 }
+
+INTERACTION
+
+$ cc while2.c
+$ ./a.out
+test 4: simple toggle loop 
+... line printed only once
+test 5: using break
+... line is 2
+... line is 3
+test 6: infinite loop press ctrl-c to escape 
+^C
+$ 
+        
+\end{lstlisting}
+
+Listing \ref{while2} shows three more \textit{while loop} examples. The first example on line:13-17 toggles the execution off after one loop. The second example on lines:23-28 uses the \textit{break} keyword to exit in the middle of the loop, and finally the last example on line:32 shows an infinite loop which requires pressing ctrl-c to halt the program. 
+
+\subsubsection{do \{\} while (...) loop}
+
+\index{do \{\} while (...) \{\}}
+
+The \textit{do-while} is similar to the \textit{while} loop in section \ref{whileloop} but it carries out the test at the end of loop which means that the loop is always executes at least once even if the test fails. Let's take the previous example and change it to compare the differences.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File do\_while1.c, do...while base examples},captionpos=b,label=dowhile1]
+
+ 1 #include <stdio.h>
+ 2 #include <stdbool.h>
+ 3 
+ 4 int main (void)
+ 5 {
+ 6 int x =0;
+ 7 
+ 8 /* 1 */
+ 9 printf ("test 1: multiple statements, not executed \n");
+10 x=0;
+11   do // multiple statements;
+12   { 
+13   x++;
+14   printf ("... line %d of 2\n",x);
+15   }
+16   while (x!=2);  
+17  
+18 /* 2 */
+19 printf ("test 2: single statements, executes once \n");
+20   do printf ("...  executed once\n"); while (false);
+21   
+22 /* 3 */
+23 printf ("test 3: loop countdown, 2,1 end \n");
+24 x = 3;
+25  do // countdown loop
+26  {
+27  printf ("... count down %d\n",x);
+28  } 
+29  while (--x);
+30   
+31 return 0;
+32 }
+
+INTERACTION
+
+$ cc do_while1.c
+$ ./a.out
+test 1: multiple statements, not executed 
+... line 1 of 2
+... line 2 of 2
+test 2: single statements, executes once 
+...  executed once
+test 3: loop countdown, 3,2,1 end 
+... count down 3
+... count down 2
+... count down 1
+$
+\end{lstlisting}
+
+Listing \ref{dowhile1} shows the code for the \textit{do-while loops}. There are some differences in the output compared with the \textit{while loop} output in section \ref{whileloop}. For instance, on line:20 the \textit{printf(...)} is executed once in the \textit{do-while loop}, whereas it is never executed in the \textit{while loop} on line:22. This is because the test is at the end of the loop and as such the loop always executes at least once even if the test fails.
+
+For example on lines:25-29, the count begins at three and not two as with the \textit{while loop}. Again this is because the test expression happens at the end of the loop and since the test expression is also an assignment which decrements there is an extra cycle.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File do\_while2.c, more do...while examples},captionpos=b,label=dowhile2]
+
+ 1 #include <stdio.h>
+ 2 #include <stdbool.h>
+ 3 
+ 4 int main (void)
+ 5 {
+ 6 int x;
+ 7 bool a;
+ 8 
+ 9 /* 4 */
+10 printf ("test 4: simple toggle loop \n");
+11 a=true;
+12   do
+13   {
+14   a = false;
+15   printf ("... line printed only once\n");
+16   }
+17   while (a);
+18 
+19 /* 5 */
+20 printf ("test 5: using break\n");
+21 x=1;
+22   do
+23   {
+24     if (x==3) break;
+25   x++;
+26   printf ("... line is %d\n",x);
+27   } while (x>0);
+28 
+29 /* 6  */
+30 printf ("test 6: infinite loop press ctrl-c to escape \n"); 
+31   do {} while (true);  // infinite loop that never exits
+32 
+33 return 0;
+34 }
+
+INTERACTION
+
+$ cc do_while2.c
+$ ./a.out
+test 4: simple toggle loop 
+... line printed only once
+test 5: using break
+... line is 2
+... line is 3
+test 6: infinite loop press ctrl-c to escape 
+^C
+$
+        
+\end{lstlisting}
+
+For the second set of examples, there is virtually no difference between the \textit{while loop} and the \textit{do-while loop}, apart from a syntax difference. The \textit{do-while loops} always requires curly brackets between the \textit{do} and \textit{while} statements but operationally produces exactly the same outcome.
+
+\subsubsection{for (...) \{\} loop}
+
+\index{for (...) \{\}}
+
+The \textit{for loop} is a useful mechanism to go through ranges i.e. from low to high or from high to low. The \textit{for loop} as defined by the C language is quite versatile, especially compared with other languages. There are three important parts to the \textit{for loop} as shown in listing \ref{3loops}. 
+
+\begin{description}
+  \item[$\bullet$] \textbf{expr1}: start state, the assignment 
+  \item[$\bullet$] \textbf{expr2}: end state,  the comparator   
+  \item[$\bullet$] \textbf{expr3}: inc/dec, change value
+\end{description}
+
+These are expressions that can be used to create all sorts of interesting combinations which we will leave up to you to discover. 
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File for.c, for...loop base examples},captionpos=b,label=for]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 #define MAX 10
+ 4 
+ 5 int main (void)
+ 6 {
+ 7 int x;
+ 8 int y;
+ 9 
+10 /* 1 */ 
+11 printf ("test 1: for loop from 0 to 10 \n");
+12 y=0;
+13   for (x=0; x<=10; x++)
+14   {
+15   y++;
+16   }
+17 printf ("... looped round %d times\n",y);
+18 
+19 /* 2 */
+20 printf ("test 2: for-loop from 10 to 1 \n");
+21 y=0;
+22   for ( ; x>1; x--)
+23     y++;
+24 
+25 printf ("... looped round %d times\n",y);
+26 
+27 /* test 3 */
+28 printf ("test 3: matrix operation \n");
+29   {
+30   int matrix[10][10];
+31 
+32      for (x=0; x<MAX; x++)
+33        for (y=0; y<MAX; y++)
+34          matrix[x][y] = y+x;
+35    
+36      for (y=(MAX-1); y>=0; y--)
+37      {
+38        for (x=0; x<MAX; x++)
+39        {
+40        printf ("%4d",matrix[x][y]);
+41           if (x!=0) printf (",");
+42        }
+43      printf ("\n");
+44      }
+45   }
+46 
+47 return 0;
+48 }
+
+INTERACTION
+
+$ cc for.c
+$ ./a.out
+test 1: for loop from 0 to 10 
+... looped round 11 times
+test 2: for-loop from 10 to 1 
+... looped round 10 times
+test 3: matrix operation 
+   9  10,  11,  12,  13,  14,  15,  16,  17,  18,
+   8   9,  10,  11,  12,  13,  14,  15,  16,  17,
+   7   8,   9,  10,  11,  12,  13,  14,  15,  16,
+   6   7,   8,   9,  10,  11,  12,  13,  14,  15,
+   5   6,   7,   8,   9,  10,  11,  12,  13,  14,
+   4   5,   6,   7,   8,   9,  10,  11,  12,  13,
+   3   4,   5,   6,   7,   8,   9,  10,  11,  12,
+   2   3,   4,   5,   6,   7,   8,   9,  10,  11,
+   1   2,   3,   4,   5,   6,   7,   8,   9,  10,
+   0   1,   2,   3,   4,   5,   6,   7,   8,   9,
+$
+\end{lstlisting}
+
+Listing \ref{for} shows 3 examples using the \textit{for loop} construct. The first example on line:13-16 goes through a 0 to 10 range. First the variable \textit{x} is initialized to the value 0 and then the end state is defined when \textit{x} is greater than 10 (i.e. 11). Every time the loop cycles, \textit{x} is incremented by 1.
+
+The second example on line:22:23 shows a more inventive way to start the loop. The variable \textit{x} is already set to 10 so it does not need to be re-initialized. The end state is when \textit{x} becomes the value 1. This is achieved by decrementing \textit{x} each time the loop cycles.
+
+The third example on line:32-44 shows a 2-dimensional matrix operation using a pair of nested \textit{for loops}. The matrix is defined as a 10 by 10 array. Line:32-34 initializes each element of the matrix with a value. Line:36-44 then prints out the matrix. Defining the 1st dimension as the rows of the matrix and the 2nd dimension being the columns.
+
+\subsection{switch (...) \{\}}
+
+\index{switch (...) \{\}}
+
+The \textit{switch construct} is a powerful decision making method. It is used to match fixed patterns. It can be used to build anything from simple decision paths to complex structures such as parsers. \textit{switch} is worth exploring further. It is important to note that the patterns are not expressions but fixed constants.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File switch1.c, switch...case example},captionpos=b,label=switch1]
+
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 void paths (char *test, uint32_t pattern)
+ 5 {
+ 6 printf ("%s: %d\n",test,pattern);
+ 7 
+ 8   switch (pattern)
+ 9   {
+10   case 203:
+11   printf ("... path 203 taken\n");
+12   break;
+13 
+14   case 204:
+15   case 205:
+16   printf ("... path 204 and 205 taken\n");
+17   break;
+18 
+19   case 207:
+20   printf ("... path 207 taken\n");
+21   case 208:
+22   printf ("... path 208 taken\n");
+23   break;
+24   
+25   default:
+26   printf ("... pattern not recognized default taken\n");
+27   } 
+28 }
+29   
+30 int main (void)
+31 {
+32 paths ("test 1: 203", 203);
+33 paths ("test 2: 204", 204);
+34 paths ("test 3: 205", 205);
+35 paths ("test 4: 207", 207);
+36 paths ("test 5: 208", 208);
+37 paths ("test 6: 206", 206);
+38 
+39 return 0;
+40 }
+
+INTERACTION
+
+$ cc switch1.c
+$ ./a.out
+test 1: 203: 203
+... path 203 taken
+test 2: 204: 204
+... path 204 and 205 taken
+test 3: 205: 205
+... path 204 and 205 taken
+test 4: 207: 207
+... path 207 taken
+... path 208 taken
+test 5: 208: 208
+... path 208 taken
+test 6: 206: 206
+... pattern not recognized default taken
+$
+
+\end{lstlisting}
+
+Listing \ref{switch1} shows a \textit{switch construct} which matches the following constant patterns 203, 204, 205, 207 and 208. For pattern 203 a single string output occurs, on line:11. For patterns 204 and 205 the same string output occurs, on line:16. For patterns 207 and 208 there is a sightly different output, both have the same final string output (on line:22) but 207 also has an extra output string on line:20. If a pattern occurs which doesn't match then a default single string output occurs, on line:26. 
+
+\textit{default} pattern on line:25 is a catchall when a pattern isn't recognized. This is important when capturing unknown errors.
+
+\begin{lstlisting}[language=C,,showstringspaces=false,caption={File switch2.c, switch...case state machine},captionpos=b,label=switch2]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 int state_machine(char *title,char *text)
+ 4 {
+ 5 int indx=0;
+ 6 int at;
+ 7 int state=0;
+ 8 int num=0;
+ 9 
+10 printf("%s: \"%s\"\n",title,text);
+11 
+12   while (text[indx])
+13   {
+14     switch (text[indx])
+15     {
+16     case 'h':
+17       if (state==0 || state==1) // two hh's
+18       { 
+19       state = 1;
+20       at = indx;
+21       }
+22       else
+23         state = 0;
+24     break;
+25     case 'e':
+26       if (state==1)
+27         state = 2;
+28       else
+29         state = 0;
+30     break;
+31     case 'l':
+32       switch (state)
+33       {
+34       case 2: state=3; break;
+35       case 3: state=4; break;
+36       default: state=0;
+37       }
+38     break;
+39     case 'o':
+40       if (state==4)
+41       {
+42       printf("... search string \'hello\' found at %d\n",at);
+43       num++;
+44       }    
+45     default :
+46     state = 0;
+47     }
+48   indx++;
+49   }    
+50 
+51 printf("... strings: %d\n",num);
+52 return num;
+53 }
+54 
+55 int main (void)
+56 {
+57 state_machine("test 1","kjdhskjfhjkfhhellokjdsfkdj");
+58 state_machine("test 2","");
+59 state_machine("test 3","dljhjklsdjkfdehjkhed");
+60 state_machine("test 4","jhdjshjdsjkhellodkskljfdlhfdhello");
+61 state_machine("test 5","jkhdjshjkhelljhjkkjhkjdhkhello");
+62 state_machine("test 6","jksahdhhellohellohellokkdjklj");
+63 return 0;
+64 } 
+
+INTERACTION
+
+$ cc switch2.c
+$ ./a.out
+test 1: "kjdhskjfhjkfhhellokjdsfkdj"
+... search string 'hello' found at 13
+... strings: 1
+test 2: ""
+... strings: 0
+test 3: "dljhjklsdjkfdehjkhed"
+... strings: 0
+test 4: "jhdjshjdsjkhellodkskljfdlhfdhello"
+... search string 'hello' found at 11
+... search string 'hello' found at 28
+... strings: 2
+test 5: "jkhdjshjkhelljhjkkjhkjdhkhello"
+... search string 'hello' found at 25
+... strings: 1
+test 6: "jksahdhhellohellohellokkdjklj"
+... search string 'hello' found at 7
+... search string 'hello' found at 12
+... search string 'hello' found at 17
+... strings: 3
+$
+  
+\end{lstlisting}
+
+Listing \ref{switch2} shows a parser that finds a specific substring. In this case it is looking for the substring \textit{"hello"}. Once a substring is found the location is printed out. If no matches occur the value 0 is printed out. 
+

@@ -1,0 +1,189 @@
+\section{Time} \label{Time}
+
+Time can be described in two quantities, namely the actual time and the measurement of time. Both critically important for embedded and real-time systems. Time is used for many tasks, from setting up a future event to measuring the number of cycles between two relative points. To be clear each hardware platform can provide much better precision or accuracy than what is provided by the standard \textit{time.h} library. The main role of the time library is to provide some consistent precision and accuracy between platforms.  
+
+\textit{Actual time} is the time displayed on a clock or calendar e.g. hh:mm 12:45 PM, hh:mm:ss 1:45:23 AM, yyyy/mm/dd 2018/01/28. By comparison, \textit{measurement-of-time} can be calculated between actual time points (i.e. seconds, minutes, ..., day, years, etc.) or by clock ticks. Clock ticks are \textit{virtual} ticks that have been normalized to 1,000,000 \textit{ticks-per-second}. Depending upon the requirement clock ticks can be of less value. 
+
+\subsection{clock\_t, time\_t and struct tm}
+
+The \textit{time.h} library provides a set of useful functions to access time and date. These functions rely on three important data structures, namely \textit{clock\_t}, \textit{time\_t} and finally \textit{struct tm}. The data structures are used to store and manipulate different forms of time as described below.
+
+\begin{itemize}
+  \item[$\bullet$] \textbf{clock\_t}: is a measurement of clock ticks. It is an arithmetic measurement with \textit{CLOCKS\_PER\_SEC} being a constant representing the number of clock ticks per second. It is used in conjunction with the \textit{clock(...)} function to measure processor time. This is amount of time used by the processor. See section \ref{clockss} for more details and a working example.
+  \item[$\bullet$] \textbf{time\_t}: is referred to as calendar time. Even-though not specified by the C standard, it is commonly identified as the number of seconds since 00:00, Jan 1 1970 UTC. This is also known as POSIX time. Prior to the release of the C11 standard it was arithmetic and post C11 it became a real number. See section \ref{timet} for more details. 
+  \item[$\bullet$] \textbf{struct tm}: this data structure holds the time and date data
+\end{itemize}
+
+\index{clock\_t} \index{time\_t} \index{struct tm}
+
+\subsection{clock(...)} \label{clockss} \index{clock(...)}
+
+The \textit{clock(...)} function returns the number of clock ticks (type \textit{clock\_t}). It can be used to calculate the number of seconds by dividing the clock ticks by the constant  \textit{CLOCKS\_PER\_SECOND}. See listing \ref{clock} below.
+ 
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: clock.c},captionpos=b,label=clock]
+
+ 1 #include <stdio.h>
+ 2 #include <unistd.h>
+ 3 #include <time.h>
+ 4 #include <stdint.h>
+ 5 
+ 6 int main(void)
+ 7 {
+ 8 clock_t start,end;
+ 9 double proc_time;
+10 uint32_t i;
+11 
+12 printf ("...... start loop\n");
+13 start = clock();
+14 i = 100000000;
+15   while(--i) ;
+16 end = clock();
+17 
+18 proc_time = (end-start) / (double) CLOCKS_PER_SEC;
+19 
+20 printf("...... start time: %ld\n",start);
+21 printf("........ end time: %ld\n",end);
+22 printf(".. CLOCKS_PER_SEC: %d\n",CLOCKS_PER_SEC);
+23 printf(".. Processor time: %f seconds \n",proc_time);
+24 
+25 return 0;
+26 }
+
+INTERACTION
+
+* Desktop PC
+
+27 $ cc clock.c
+28 $ ./a.out
+29 ...... start loop
+30 ...... start time: 2855
+31 ........ end time: 234425
+32 .. CLOCKS_PER_SEC: 1000000
+33 .. Processor time: 0.231570 seconds
+
+* Embedded Device 
+
+34 $ cc clock.c
+35 $ ./a.out
+36 ...... start loop
+37 ...... start time: 3739
+38 ........ end time: 610643
+39 .. CLOCKS_PER_SEC: 1000000
+40 .. Processor time: 0.606904 seconds 
+
+\end{lstlisting}
+
+The listing \ref{clock} shows two execution-runs. The first is on a UNIX Desktop and the second on a low-cost Embedded Device running Linux. The first execution-run line:33 is significantly faster than the second line:40. Even-though dissimilar devices both follow the same C APIs. Note that the \textit{CLOCKS\_PER\_SECOND} is the same number between both execution-runs because the clocks ticks are normalized.   
+
+\subsection{time(...)} \label{timet} \index{time(...)}
+
+The \textit{time(...)} function returns the number of seconds (type \textit{time\_t}). This is the number of seconds from the UNIX Epoch, or more precisely the number of seconds since 00:00, Jan 1 1970 UTC.   
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: time.c},captionpos=b,label=ctime]
+
+ 1 #include <stdio.h>
+ 2 #include <unistd.h>
+ 3 #include <time.h>
+ 4
+ 5 int main(void)
+ 6 {
+ 7 time_t start,end;
+ 8 double time_taken;
+ 9 
+10 time(&start);
+11 sleep(5);
+12 time(&end);
+13
+14 printf("......... start time: %ld\n",start);
+15 printf("........... end time: %ld\n",end);
+16 printf(".. second time taken: %f\n",difftime(end,start));
+17
+18 return 0;
+19 }
+
+INTERACTION
+
+* Desktop PC
+
+20 $ cc time.c
+21 $ ./a.out
+22 ......... start time: 1516720389
+23 ........... end time: 1516720394
+24 ......... time taken: 5.000000
+25 $
+
+* Embedded Device 
+
+26 $ cc time.c
+27 $ ./a.out
+28 ......... start time: 1522522820
+29 ........... end time: 1522522825
+30 ......... time taken: 5.000000
+31 $ 
+
+\end{lstlisting}
+
+The listing \ref{ctime} shows two execution-runs (similar to section \ref{clockss}). The difference is that the measured time is exactly the same 5 seconds (line:24 and line:30). The difference is time is calculated with a call to the \textit{difftime(...)} function on line:16.
+
+\newpage
+\subsection{struct tm} \index{struct tm}
+
+The \textit{struct tm} is used when dealing with calendar dates and/or wall clock time. It is useful when a date and time marker is required. The structure members are defined in listing \ref{structtm} below.  
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={Structure members: struct tm},captionpos=b,label=structtm]
+
+int    tm_sec;   // seconds [0,61]
+int    tm_min;   // minutes [0,59]
+int    tm_hour;  // hour [0,23]
+int    tm_mday;  // day of the month [1,31]
+int    tm_mon;   // month of the year [0,11]
+int    tm_year;  // years since 1900
+int    tm_wday;  // day of the week [0,6] (Sunday = 0)
+int    tm_yday;  // day of the year [0,365]
+int    tm_isdst; // daylight savings flag
+
+\end{lstlisting}
+
+As can be seen the structure covers seconds, minutes, hours, day-of-the-month, month, year, weekday, day-of-the-year and finally daylight saving. Below listing \ref{ctm} is an example of how to use the structure in a programming context. 
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: tm.c},captionpos=b,label=ctm]
+
+ 1 #include <stdio.h>
+ 2 #include <time.h>
+ 3
+ 4 int main(void)
+ 5 {
+ 6 time_t now;
+ 7 struct tm *time_info;
+ 8 char time_buffer[60];
+ 9
+10 time(&now);
+11 time_info = localtime(&now);
+12
+13 strftime(time_buffer,80,"%y/%m/%d %X",time_info);
+14
+15 printf("%s\n",time_buffer);
+16 
+17 return 0;
+18 }
+
+INTERACTION
+
+19 $ cc tm.c
+20 $ ./a.out
+21 18/01/22 21:21:59
+22 $
+
+\end{lstlisting}
+
+The C program simply writes out the year/month/day-of-the-month hour24:minutes:seconds, as shown on line:21. The \textit{locale} of the device is also important when it comes to time since it determines the timezone shifts for wall clock time. All the the timezone shifts occur from UTC time.
+
+
+
+
+
+
+
+
+
+

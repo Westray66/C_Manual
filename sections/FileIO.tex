@@ -1,0 +1,395 @@
+\section{Input/Output} \label{IO}
+
+Input/Output, or simply I/O, is a fundamental feature of all programming languages. The C language is no exception. I/O allows a program to communicate with the outside world. This communication is through the use of files and streams. File access is used to do everything from produce text files to accessing hardware peripherals. Also C provides three standard streams for input, output and errors.  
+
+The underlying details of I/O tend to be dependent on the actual Operating System. By contrast the C language provides a generic set of functions to open streams and access files. Many of these mechanisms have already been introduced. For instance, \textit{fprintf(...)} to print out errors to the console.
+
+\subsection{Standard streams}
+
+The C Programming Language provides three standard streams to control input, output and errors. These streams are called \textit{stdin}, \textit{stdout} and \textit{stderr} respectively. 
+
+\index{stdin}
+\index{stdout}
+\index{stderr}
+
+\begin{description}
+  \item[$\bullet$] \textbf{stdin}, standard input from a device e.g. keyboard 
+  \item[$\bullet$] \textbf{stdout}, standard output sends to a device e.g. console  
+  \item[$\bullet$] \textbf{stderr}, standard error send to a device e.g. error file or console
+\end{description}
+
+They can be redirected to point to different devices. These streams are always available and can buffered differently depending upon the requirement. Buffering can be set to one of three types, namely \textit{fully buffered}, \textit{line buffered} or \textit{unbuffered}. \textit{Fully buffered} only returns once the buffer is full. \textit{Line buffered} returns when a end-of-line occurs (i.e. return key is pressed) and \textit{unbuffered} is simply no buffer. These streams are used to interface with the outside world. 
+
+For embedded systems, these streams are the first functionality you should get working when bringing up a new hardware platform. 
+
+\subsubsection{stdin}
+
+Normally defined as the hardware keyboard for a command line console. When a key is pressed on the keyboard the key value is placed into the stdin stream to be used by a program. The stdin can be thought to be a buffer so more than one key may be in the stdin stream ready to be read.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: getchar.c},captionpos=b,label=getchar]
+	
+ 1 #include <stdio.h>
+ 2 
+ 3 int main(void)
+ 4 {
+ 5 char c;
+ 6 
+ 7 printf ("press any key and then return-key \n");
+ 8 
+ 9   do
+10   {
+11   c = getchar();
+12   printf ("%d pressed \n",c);
+13   }
+14   while (c!='e');
+15 
+16 printf("... complete\n");
+17 return 0;
+18 }
+
+INTERACTION
+
+$ ./a.out
+press any key and then return-key 
+a
+97 pressed 
+10 pressed 
+b
+98 pressed 
+10 pressed 
+e
+101 pressed 
+... complete
+$
+ 
+\end{lstlisting}
+
+Listing \ref{getchar} shows a program which loops around requesting a key to be pressed. Each time the key is pressed a return-key also has to be pressed for the buffer to be sent. This can be seen in the INTERACTION section, where a key pressed is followed by 10 pressed (10 represents the return key value). Also note that the character is echoed to the console not by the program but by the command line. 
+
+Line:11 shows a function called \textit{getchar(...)}. This function is equivalent to \textit{getc(stdin)}, where \textit{stdin} is the standard input stream.
+
+\subsubsection{stdout}
+
+As mentioned at the beginning of this section, we have been using this stream extensively throughout this book. A good example of \textit{stdout} is the function \textit{printf(...)} used in the first program presented. \textit{printf(...)} sends characters to the \textit{stdout} stream. Normally this is set to the console but can also be redirected to a file or other hardware device. There are multiple functions can take advantage of \textit{stdout}, we will just focus on the \textit{printf(...)} function.
+
+\index{printf(...)}
+
+The \textit{printf(...)} function takes in a variable number of arguments. It uses a a concept called \textit{varargs} which allows multiple arguments without specifying a fixed number. This is useful as it allows different combinations of output formats. A subset of the formats available are outlined below.\newpage
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | l | l |}
+    \hline
+    FORMAT & TYPE \\ \hline
+    \%x & Unsigned hexadecimal integer \\ \hline
+    \%c & Character \\ \hline
+    \%d & Signed decimal integer \\ \hline
+    \%s & String of characters \\ \hline
+    \%f & Decimal floating point \\ \hline
+  \end{tabular}
+\caption{Field formats}
+\label{table:fformats}
+\end{table*}
+
+Table \ref{table:fformats} shows a common subset of the various formats. There are many other formats available. 
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: fprintf.c},captionpos=b,label=myfprintf]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 int main(void)
+ 4 {
+ 5 float f = 3.14159265;
+ 6 int i = 1223456;
+ 7 char s[] = "Hello";
+ 8 char c = 'a';
+ 9 
+10 printf("%f,%d,0x%x,\"%s\",%c\n",f,i,i,s,c);
+11 fprintf(stdout,"%f,%d,0x%x,%s,%c\n",f,i,i,s,c);
+12 
+13 return 0;
+14 }  
+
+INTERACTION
+
+$ cc fprintf.c
+$ ./a.out
+3.141593,1223456,0x12ab20,"Hello",a
+3.141593,1223456,0x12ab20,Hello,a
+$ 
+
+\end{lstlisting}
+
+Listing \ref{myfprintf} shows that \textit{printf(...)} on line:10 and \textit{fprintf(...)} on line:11 are equivalent. \textit{printf(...)} streams everything to \textit{stdout}. Note that the format for hexadecimal using \textit{\%8.8x} directs the \textit{printf(...)} to present a 8 character hexadecimal number with leading 0's. This is useful when representing hardware registers.   
+
+\subsubsection{stderr}
+
+\index{stderr}
+
+Again we have covered \textit{stderr} in more detail in section \ref{errors}, so rather than repeating an example we recommend going back and taking a look at that section. The buffer for this stream is set to \textit{unbuffered} as the output information will be required immediately.
+
+\subsection{File I/O}
+
+File I/O refer to the operations on files that reside on a filing system. These files can be a database, text, binary, etc.. They can be opened for writing, reading and updating. The files can be locked or unlocked for  sequential or random access. Again it should be noted that the underlying Operating System may have many more functions to control file I/O.
+  
+\subsubsection{Access control}
+
+Access control is the mechanism to stop multiple programs accessing the same file at the same time. This is important since in a Unix like operating system many programs may want to access the same files and corruption could easily occur unless there are some safeguards.
+
+\index{fopen(...)}
+\index{fclose(...)}
+
+For C, access control is achieved using two function calls, namely \textit{fopen(...)} and \textit{fclose(...)}. These functions lock and unlock files. The \textit{fopen(...)} function locks a file resource so no other program can gain access and \textit{fclose(...)} does the reverse, it releases a locked file resource so other programs can gain access.
+ 
+\textit{fopen(...)} defines which file is locked and the type of file which will be locked i.e. read only, write only, read-write, create, append, etc.. If the function is successful a non-NULL FILE pointer is returned, otherwise NULL is returned. The FILE pointer points to a hidden file descriptor which is used by the other file functions. \textit{fopen(...)} opens a stream to a specific file and \textit{fclose(...)} closes the stream.
+ 
+\begin{table}
+\centering
+  \begin{tabular}{ | l | l |}
+    \hline
+    MODE & ACTION \\ \hline
+    r & open text file for reading \\ \hline
+    rb & open binary file for reading \\ \hline
+    r+ & open for reading and writing \\ \hline
+    w & create text file for writing \\ \hline
+    wb & create binary file for writing \\ \hline
+    w+ & open a text file or create if nonexistent \\ \hline
+    a & append, write at end of file \\ \hline
+    a+ & reading and writing at end of file \\ \hline
+  \end{tabular}
+\caption{File attributes}
+\label{fopenformat}
+\end{table}
+
+The table \ref{fopenformat} includes both binary and text file open options. A binary file contains non-readable characters. An example of a binary file is an object file produced by the compiler. Binary files should not be loaded into a text editor unless the editor has been specifically designed to handle this type of editing.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: fopen.c},captionpos=b,label=fopen]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <time.h>
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 FILE *HANDLE;
+ 8 time_t seconds;
+ 9 
+10 HANDLE = fopen("seconds.dat","w");
+11 
+12   if (HANDLE == NULL)
+13   {
+14   perror("seconds.dat");
+15   exit(EXIT_FAILURE);
+16   }
+17 
+18 seconds = time(NULL);
+19 fprintf(HANDLE,"%ld",seconds);
+20 fclose(HANDLE);
+21 return 0;
+22 }
+
+INTERACTION
+
+$ cc fopen.c
+$ ./a.out
+$ more seconds.dat
+1502813680
+$
+
+\end{lstlisting}
+
+Listing \ref{fopen} shows code that opens a text file for writing, gets the current Unix time in seconds and then writes the time out to a file. Unix time is the number of seconds since 00:00:00 Universal Time Coordinated (UTC), 1 January 1970. The file opened is \textit{seconds.dat} on line:10 and the file is opened with the \textit{w} options (write only). Notice that the same \textit{fprintf(...)} function is used to write out using the file \textit{HANDLE}. Finally the file is released on line:20 with a call to \textit{fclose(...)}
+
+\subsubsection{fscanf(...)}
+
+The \textit{fscanf(...)} function reads from a specific stream or file handle. The same format options can be used as with the \textit{printf(...)} function. Using the same formats makes it relatively easy to write and then read in information from a file.
+
+\index{fscanf(...)}
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File: fscanf.c},captionpos=b,label=fscanf]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <time.h>
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 FILE *HANDLE;
+ 8 time_t seconds;
+ 9 
+10 HANDLE = fopen("seconds.dat","r");
+11 
+12   if (HANLDE == NULL)
+13   {
+14   perror("seconds.dat");
+15   exit(EXIT_FAILURE);
+16   }
+17 
+18 fscanf(HANDLE,"%ld",&seconds);
+19 printf("record Unix time is: %ld\n",seconds);
+20 fclose(HANDLE);
+21 return 0;
+22 }
+
+INTERACTION
+
+$ cc fscanf.c
+$ ./a.out
+record Unix time is: 1502813680
+$ 
+
+\end{lstlisting}
+
+Listing \ref{fscanf} shows code that opens a read-only file. Line:10 opens the file called \textit{seconds.dat}. Data is then extracted from the file on line:18. The extracted data is of type \textit{signed long int} and is specified using \textit{\%ld} directive. The data value is then placed into the variable \textit{seconds}. \textit{seconds} is specified as being of type \textit{time\_t} (or \textit{signed long int}). Note the variable is accessed by reference, meaning the data is placed at the address of the variable. The INTERACTION part shows the number of seconds being read and displayed on the console command line. This is the same number that was written to the file in listing \ref{fopen}.
+
+
+\subsection{Parsing using file I/O}
+
+Lets take a look at a more complicated example. We take an existing solution that used strings and convert it to using file i/o. This conversion makes the solution more general and flexible, replacing hardcoded fixed strings with data files.
+
+\index{fgetc(...)}
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File: fgetc.c},captionpos=b,label=fgetc]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <stdint.h>
+ 4 
+ 5 /* macros */
+ 6 #define NO_TRANSITION -1
+ 7 
+ 8 /* new datatypes */
+ 9 typedef struct
+10 {
+11 char c;
+12 uint8_t state;
+13 uint8_t new_state;
+14 int (*function) (int);
+15 } states_str;
+16 
+17 /* function prototypes */
+18 int ident(int loc);
+19 int record(int loc);
+20 
+21 /* globals */
+22 
+23 int at=-1;
+24 
+25 states_str states[] =
+26 {
+27 'h',	0,	1,	record,
+28 'h',	1,	1,	record,
+29 'e',	1,	2,	NULL,
+30 'l',	2,	3,	NULL,
+31 'l',	3,	4,	NULL,
+32 'o',	4,	0,	ident,
+33  0 ,	0,	0,	NULL
+34 };
+35 
+36 /* functions */
+37 int record(int loc)
+38 {
+39 at = loc;
+40 return 0;
+41 }
+42 
+43 int ident(int loc)
+44 {
+45 printf("... search string 'hello' found at %d\n",at);
+46 return 1;
+47 }
+48 
+49 int state_machine(char *title,char *filename)
+50 {
+51 FILE *handle;
+52 int scan;
+53 int current=0; // start state
+54 int transition;
+55 int num;
+56 char c;
+57 
+58 printf("%s: \"%s\"\n",title,filename);
+59 num = 0;
+60 
+61 handle = fopen(filename,"r");
+62  
+63    if (handle == NULL)
+64    {
+65    fprintf (stderr,"error: couldn't open %s\n",filename);
+66    exit(EXIT_FAILURE);
+67    }
+68 
+69 c = fgetc(handle);
+70 
+71   while (c != EOF)
+72   {
+73   scan = 0; // reset scan
+74   transition = NO_TRANSITION; 
+75 
+76     while (states[scan].c !=0 )
+77     {
+78       if (c == states[scan].c && current == states[scan].state)
+79         transition = scan;
+80     scan++;
+81     }
+82 
+83     if (transition == NO_TRANSITION)
+84       current = 0; // reset state
+85     else
+86     {
+87     current = states[transition].new_state;
+88       if (states[transition].function!=NULL)
+89         num += states[transition].function((int)(ftell(handle)-1));  
+90     }
+91   c = fgetc(handle);
+92   }
+93 
+94 printf("... strings: %d\n",num);
+95 fclose(handle);
+96 return num;
+97 } 
+98 
+99 int main(void)
+100 {
+101 state_machine("test 1","string1.dat");
+102 state_machine("test 2","string2.dat");
+103 state_machine("test 3","string3.dat");
+104 state_machine("test 4","string4.dat");
+105 state_machine("test 5","string5.dat");
+106 state_machine("test 6","string6.dat");
+107 return 0;
+108 }
+
+INTERACTION
+
+$ cc fgetc.c
+$ ./a.out
+test 1: "string1.dat"
+... search string 'hello' found at 13
+... strings: 1
+test 2: "string2.dat"
+... strings: 0
+test 3: "string3.dat"
+... strings: 0
+test 4: "string4.dat"
+... search string 'hello' found at 11
+... search string 'hello' found at 28
+... strings: 2
+test 5: "string5.dat"
+... search string 'hello' found at 25
+... strings: 1
+test 6: "string6.dat"
+... search string 'hello' found at 7
+... search string 'hello' found at 12
+... search string 'hello' found at 17
+... strings: 3
+$
+
+\end{lstlisting}
+
+Listing \ref{fgetc} shows the same parsing program used in listing \ref{table} on page \pageref{tablee} with a few exceptions. Line:61 uses \textit{fopen(...)} to open a text file. Line:69 uses \textit{fgetc(...)} to input a character at a time. Line:71 checks that the end-of-file (EOF) hasn't been reached. Line:89 records the location in the file using the function \textit{ftell(...)}. Finally line:95 closes the file with \textit{fclose(...)}. If we compare the INTERACTION parts, we find that it is identical to the fixed string code. The only real difference is that the data source is a file. 
+
+\index{fgetc(...)}
+\index{ftell(...)}
+ 
+ 

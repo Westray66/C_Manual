@@ -1,0 +1,64 @@
+\section{Hints \& Tips}
+
+The Hints \& Tips section focuses on Embedded, Real-Time and Safety-Critical recommendations. Below are a collection of useful experiences based on some of the standard guidelines (e.g. MISRA-C) recommended by organizations such as AUTOSAR and JPL (Jet Propulsion Laboratory). 
+
+\subsection{General}
+
+\begin{enumerate}
+
+\item \textbf{Use assert(...)}: use wherever possible within a program, especially when developing source code. Even-through the code may be correct the data may not be correct. See section \ref{assert} on page \pageref{assert}.
+
+\item \textbf{No recursion}: specifically for embedded systems, recursion should be avoided for two reasons. First the required stack size is unknown and second a recursive function is not guaranteed to converge. If non-convergence occurs either an exception is finally raised or data corruption occurs i.e. stack overflow. Recursion is a good technique especially when combined by proof-by-induction but it is not recommended for embedded or safety-critical systems.
+
+\item \textbf{Dynamic memory}: should be avoided during runtime, since errors and corruption can occur that are difficult to handle in an embedded system. Dynamic memory can be used in controlled parts of the device lifecycle i.e. initialization and exit phase. Instead it is recommended that statically allocated memory is used or a directly managed fixed memory buffer.
+
+\item \textbf{Functions}: keep simple and short. This makes functions easier to debug, optimize and test. 
+
+\item \textbf{Commenting}: make sure each function is adequately commented, explaining purpose, input parameters, output and side-effects. 
+
+\item \textbf{Run time error checking}: check for errors and determine a course of action when an error occurs. Course of action can be more complicated in an embedded or safety-critical system since simply stopping may not be a viable option.
+
+\item \textbf{Warnings}: make sure that all warnings are removed from at compilation stage. This is important since warnings are indications that something is not quite right with the code. 
+
+\item \textbf{Memory usage}: make sure that memory usage is carefully monitored during software development. Memory corruption is one of the factors that causes instability. This is especially important for embedded devices with limited memory.
+
+\item \textbf{Control structures}: reduce the depth of deep nested control structures (e.g. \textit{if ... else }). Deep control structures are difficult to test and adds complexity to the source code. Complexity leads to instability.
+
+\item \textbf{Equivalence ordering}: where possible when comparing a constant put the constant first. This allows the compiler to flag a wrong expression. For instance, "if (CONST\_VALUE==variable\_name)" is syntactically correct but "if (CONST\_VALUE=variable\_name)" produces a syntax error. Whereas both "if (variable\_name==CONST\_VALUE)" and "if (variable\_name=CONST\_VALUE)" are syntactically correct but result in completely different outcomes. This can result in an error which is difficult to discover. 
+
+\item \textbf{Include time information in log output}: when designing logfile format it is always useful to consider including time information. This is important since time can be a major factor in identifying a real-time or embedded issue.
+
+\item \textbf{Logging}: use \textit{printf(...)} or \textit{fprintf(...)} extensively throughout the code. It is a powerful tool for debugging and provides historical record on how a program is operating. \textit{printf(...)} function is a complicated function and takes up valuable compute cycles. This is important when dealing with Real-Time designs. There are special embedded versions for resource constrained devices.
+
+\item \textbf{Don't optimize too early}: when developing C code don't attempt to optimize too quickly. It is quite easy to optimize code that doesn't significantly effect the overall performance of the system. Optimization frequently makes debugging more complicated.
+
+\item \textbf{Style}: when working with existing code, try to keep to the style of that code. In other words don't attempt in introduce a new style unless the goal is to rewrite all the source to that new style.
+
+\end{enumerate}
+
+\subsection{Debugging}
+
+\begin{enumerate}
+
+\item \textbf{Possibilities:} create a list of possible-causes from likely to unlikely. This list tends to be dynamic and is constantly revisited. Depending on the complexity, the task of creating a list may be visited numerous times throughout the debug process.
+
+\item \textbf{Experiment:} there is only so much you can gain from looking at code, it is important to start experimenting and modifying source. This helps with gaining a better understanding of the problem. Debugging is not a theoretical activity, experiment and gathering information.
+
+\item \textbf{Divide and conquer:} try and break the problem into smaller manageable chunks, this involves pruning the problem space in to understandable elements i.e. follow the systematic \textit{scientific method} as much as possible.
+
+\item \textbf{Avoid mysticism:} when the problem is hard there is a tendency to branch away from logic, this should be avoided. There are times when strangenesses do occur but these are rare and seldom events. More mythical ideas should be kept at the bottom of any possible-cause list.
+
+\item \textbf{Explore the problem-domain:} be comfortable with letting go of any hypothesis but remember to keep each one as a possibility. Nothing is closed until there is a final resolution. There may be multiple causes to any one problem.
+
+\item \textbf{Frameworks:} create an environment to gain more information. This may include extra hardware or setting up a simulation environment. Put effort into the discovery framework and gather data. 
+
+\item \textbf{Think through the problem:} as the pieces come together go through the evidence carefully and try to explain what is the \textit{cause and effect}. Just verbally explaining and white-boarding a problem can help provide new motivations for exploration.
+
+\item \textbf{Double-check:} capture all known errors, use \textit{assert(...)} extensively throughout the code. Make sure all compiler warnings are understood and removed. Make sure there is error coverage for both data and code.
+
+\item \textbf{Keep debug code:} retain all debug code in the source. This is useful when other problems are being explored. The rule is that debug data is always important.
+
+\item \textbf{Have fun:} enjoy debugging, James Joyce wrote \textit{"Mistakes are the portal of discovery"}. Debugging can be a really interesting and challenging activity. Why software fails is a science.
+
+\end{enumerate}
+

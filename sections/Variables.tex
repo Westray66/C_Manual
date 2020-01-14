@@ -1,0 +1,486 @@
+\section{Variables} \label{avari}
+
+The C Programming Language has a number of basic builtin variable types as well as some more complex types brought in via standard libraries. This section covers both the builtin types and some of the more common library types used in Embedded Systems. 
+
+\subsection{Builtin basic types}
+
+These are the common variable types found extensively in C source code. The table is not exhaustive but provides a core set of types. It is always worth spending a little time understanding the variable type ranges as they can differ depending upon the compiler being used and the hardware architecture being targeted. In C, all variables used have to first be declared.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ | l | l | l | l |}
+    \hline
+    TYPE & STORAGE & FORMAT & RANGE \\ \hline
+    char & 1 byte & 1 signed bit + 7 bits & -128 to +127 \\ \hline
+    unsigned char & 1 byte & 8 bits & 0 to 255 \\ \hline
+    short & 2 bytes & 1 signed bit + 15 bits & -32,768 to 32,767 \\ \hline
+    unsigned short & 2 bytes & 16 bits & 0 to 65,535 \\ \hline
+    int & 4 bytes & 1 signed bit + 31 bits & -2,147,483,648 to +2,147,483,647 \\ \hline
+    unsigned int & 4 bytes & 32 bit & 0 to 4,294,967,295 \\ \hline
+    float & 4 bytes & 6 decimal places & 1.2E-38 to 3.4E+38 \\ \hline
+    double & 8 bytes & 15 decimal places & 2.3E-308 to 1.7E+308 \\ 
+    \hline
+  \end{tabular}
+\caption{Basic C types}
+\label{ctypes}
+\end{table}
+
+\subsection{Loop variables}
+
+A common convention in C is to use short and abbreviated names. This can be seen when scanning C code examples. For instance, it is common to use \textit{'i’}, as in \textit{for (i = 0; i < 10; i++) ...}, in loops as these were lifted at a time when Fortran was a common programming language and had reserved keywords for loop structures.
+
+\subsection{void type} \label{voidtype}
+
+\index{void}
+
+This is a special type called \textit{void}. It is a builtin type with special properties. These properties are context dependent. The three context that \textit{void} operates under are:-
+
+\begin{itemize}
+  \item[$\bullet$]  \textbf{Function parameter}: \textit{void} found in the parameter-list means no parameters e.g. \textit{printhello(void);} so a caller function would have \textit{printhello();} i.e. no parameters.
+  \item[$\bullet$] \textbf{Return type}: \textit{void} means no return. Extending the previous example \textit{void printhello(void);} this means that the function does not return a value. Note \textit{return;} with no value can be used exit a \textit{void} function. It can be placed anywhere within the function body.  
+  \item[$\bullet$] \textbf{Generic pointer}: where the object being pointed to is generic or unknown. We talk about pointers in more detail in section \ref{Pointers}.
+\end{itemize}
+
+\subsection{Boolean type}\label{stdbool}
+
+\index{bool} 
+\index{stdbool.h}
+
+The boolean type isn't a builtin type in the C language. Boolean is an implied type using either integers or characters. It is now a standard library. Boolean type was introduced in the C99 revision. To use the standard boolean type we have to include the library \textit{stdbool.h}.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File bool.c, using the stdbool.h bool type},captionpos=b,label=bool]
+
+ 1 #include <stdio.h>
+ 2 #include <stdbool.h>
+ 3 
+ 4 int main(void)
+ 5 {
+ 6 bool logic_a = true;
+ 7 
+ 8   if (logic_a) 
+ 9   {
+10   printf("logic_a==TRUE\n");
+11   }
+12   else
+13   {
+14   printf("logic_a==FALSE\n");
+15   }
+16   
+17 return 0;
+18 }
+
+INTERACTION
+
+19 $ cc bool.c
+20 $ ./a.out
+21 ... logic_a==TRUE
+22 $
+
+\end{lstlisting}
+
+Listing \ref{bool} shows an example using \textit{bool} type. The code declares a variable called \textit{logic\_a} that is set to logic value \textit{true} on line:6. The variable is used as an expression on line:8. If expression result in \textit{true} then TRUE is displayed, otherwise FALSE. In the example, \textit{logic\_a} is set to true so TRUE is displayed, as shown on line:21. 
+
+\subsection{Casting to a different type}
+
+Casting allows one type to be transformed (cast) as another type. This is useful when requiring a change, where the original type isn't compatible with either a manipulation operation or output format. Quite often it is used to avoid an error or warning message being thrown out by the compiler.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={Example casting, char to int},captionpos=b,label=casting]
+ 1 char y;
+ 2 int x;
+ 3  
+ 4 x = (int) y;
+\end{lstlisting}
+
+Listing \ref{casting}, casts the variable \textit{y} of type \textit{char} to \textit{int} on line:4. The cast value is then assigned to variable \textit{x}. A \textit{char} casted to an \textit{int} gives the ASCII value of \textit{char}. This value can now be manipulated as an \textit{int}. It is not recommended to cast unless you are forced to change types. This feature should be used sparingly.  
+
+\subsection{C99 types}
+
+\index{stdint.h}
+
+By including the header file \textless stdint.h\textgreater \, the new integer types will be available which are particularly useful in embedded programming. These new types incorporate the bit size of the type within the name. This is useful when accessing hardware when the type size is important to know. 
+
+For example, the new integer types are defined as \textit{int\{bit size\}\_t} and correspondingly the new unsigned integer types are defined as \textit{uint\{bit size\}\_t}. Where is the \textit{bit size} can be 8, 16, 32 and 64. Table \ref{inttypes} shows a subset of the integer types available with \textit{stdint.h}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ | l | l |}
+    \hline
+    TYPE & FORMAT \\ \hline
+    int8\_t & signed 8 bits \\ \hline
+    uint8\_t & unsigned 8 bits \\ \hline
+    int16\_t & signed 16 bits \\ \hline
+    uint16\_t & unsigned 16 bits \\ \hline
+    int32\_t & signed 32 bits \\ \hline
+    uint32\_t & unsigned 32 bits \\ \hline
+  \end{tabular}
+  \caption{stdint.h: int types}
+  \label{inttypes}
+\end{table}
+
+\subsection{Variable scope rules}
+
+Variable scoping is part of every programming language and C is no exception. C variable scoping is relatively straightforward. A variable can be scoped as being global or local. 
+
+\subsubsection{Global scope}
+
+\index{global variable scoping}
+
+A global scoped variable can be accessed from anywhere in the file that they are declared in, and with some additional declaration (see \textit{extern} later) from other files. These variables permanently take up storage; by contrast local variables do not occupy permanent storage unless directed (see section \ref{static}).\\
+
+\begin{lstlisting}[language=C,caption={File global1.c, block scope},captionpos=b,label=global1]
+#include <stdio.h>
+
+int x=10, y=20;
+
+int calculate(void)
+{
+return (x+y);
+}
+
+int main(void)
+{
+printf("answer=%d\n",calculate());
+return 0;
+}
+
+INTERACTION
+
+$ cc global1.c 
+$ ./a.out
+answer=30
+\end{lstlisting}
+
+Listing \ref{global1} shows two globally scoped variables being declared, namely \textit{x} and \textit{y}. These variables are available throughout the entire \textit{global1.c} file. The function \textit{calculate(...)} makes use of this fact to return the value of \textit{x+y} without having arguments.\\
+
+\newpage
+
+\begin{lstlisting}[language=C,caption={File global2.c, local scope},captionpos=b,label=global2]
+#include <stdio.h>
+
+int x=10,y=20;
+
+int calculate(void)
+{
+int x=4, y=7;
+
+return (x+y);
+}
+
+int main(void)
+{
+printf("answer=%d\n",calculate());
+return 0;
+}
+
+INTERACTION
+
+$ cc global2.c
+$ ./a.out
+answer=11
+\end{lstlisting}
+
+Listing \ref{global2} shows the \textit{calculate(...)}  function using local variables with exactly the same names as the globally scoped variables. The scoping rules have the local variables taking precedence over the global variables. This means the answer 11 is returned rather than 30. In other words, local variables have higher precedence over global variables.
+
+\subsubsection{Extern scope}
+
+\index{extern}
+
+An \textit{extern} scoped variable is a variable where the storage is contained in another object file. The \textit{extern} keyword is used to inform the compiler that the variable is externally defined and the linker has the task of connecting name and storage location in the final image. The variable still has to be defined correctly so that the compiler can understand the name, type and size.
+
+\begin{lstlisting}[language=C,caption={File variables.c, only contains two variables},captionpos=b,label=variables]
+
+1 int x=10;
+2 int y=20;
+ 
+\end{lstlisting}
+
+Listing \ref{variables} shows a file called \textit{variables.c} containing two variables \textit{x} and \textit{y}. The variables are both declared as global so they have permanent storage allocated and they are initialized to 10 and 20 respectively. 
+
+\begin{lstlisting}[language=C,caption={File external.c, extern used to access variables in another file},captionpos=b,label=extern]
+ 
+ 1 #include <stdio.h>
+ 2
+ 3 extern int x,y; 
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 printf("answer=%d\n",x+y);
+ 8 return 0;
+10 }
+
+INTERACTION
+ 
+$ cc external.c
+Undefined symbols for architecture x86_64:
+  "_x", referenced from:
+      _main in external-bb0f25.o
+  "_y", referenced from:
+      _main in external-bb0f25.o
+ld: symbol(s) not found for architecture x86_64
+$ cc -c variables
+$ cc external.c variables.o
+$ ./a.out
+answer=30
+$
+
+\end{lstlisting}
+
+
+Listing \ref{extern} declares two \textit{extern} variables on line:3, \textit{x} and \textit{y}. These variables are of type \textit{int} and they correspond to the global variables defined in \textit{variables.c}. These variables are then accessed in the body of the \textit{main(...)} function. 
+
+If the \textit{external.c} is compiled separately, as shown in the INTERACTION section, the linker throws out an error message saying \textit{"Undefined Symbols"} but when \textit{variables.o} is added the linker completes the compilation.
+
+\subsubsection{Block scope}
+
+\index{local variable scoping}
+
+A block is identified as being between the curly brackets \{ and \}. Outside of the brackets the variables are not accessible, however inside brackets the variables are accessible including any further nested brackets.\\
+
+\begin{lstlisting}[language=C,caption={File: block1.c, block scope},captionpos=b,label=block1]
+int calculate(void)
+{
+int x=10, y=20;
+
+return (x+y);
+}
+\end{lstlisting}
+
+Listing \ref{block1} shows a function called \textit{calculate(...)} that declares and assigns the value 10 to \textit{x} and the value 20 to the \textit{y}. Upon return the two variables are summed together to return the value 30. The variables are available throughout the function body but not outside the brackets. Now let's play with the scoping.\\
+
+\begin{lstlisting}[language=C,caption={File block2.c, block scope with error},captionpos=b,label=block2]
+ 1 int calculate(void)
+ 2 { // block1
+ 3   { // block 2
+ 4   int x=10, y=20;
+ 5   }
+ 6   { // block 3
+ 7   return (x+y);
+ 8   }
+ 9 return (x+y);
+10 }
+
+INTERACTION
+
+$ cc -c block2.c
+block2.c:7:11: error: use of undeclared identifier 'x'
+  return (x+y);
+          ^
+block2.c:7:13: error: use of undeclared identifier 'y'
+  return (x+y);
+            ^
+block2.c:9:9: error: use of undeclared identifier 'x'
+return (x+y);
+        ^
+block2.c:9:11: error: use of undeclared identifier 'y'
+return (x+y);
+          ^
+4 errors generated.
+\end{lstlisting}
+
+Listing \ref{block2} shows a violation of the scoping rules. Both variables \textit{x} and \textit{y} are only declared inside block2. Block 3 contains a return statement with the variables with no declaration and block 1 does not declare the variables. The compiler finds 4 violations (2 x number of variables) of the scoping rules. 
+ 
+\begin{lstlisting}[language=C,caption={File block3.c, block nested scoping with error},captionpos=b,label=block3]
+ 1 int calculate(void)
+ 2 { // block 1
+ 3   { // block 2
+ 4   int x=10, y=20; 
+ 5     { // block 3 
+ 6     return (x+y);
+ 7     }
+ 8   }
+ 9 return (x+y);
+10 }
+
+INTERACTION
+
+$ cc -c block3.c
+block3.c:9:9: error: use of undeclared identifier 'x'
+return (x+y);
+        ^
+block3.c:9:11: error: use of undeclared identifier 'y'
+return (x+y);
+
+2 errors generated.
+\end{lstlisting}
+
+Listing \ref{block3} shows how the nested scoping rules operates. There are still errors but that only occurs with the variables in the highest block 1. The scope rules allows access to the variables in the nested block 3. 
+
+\subsection{const qualifier}
+
+\index{const variable}
+
+The const qualifier means that a variable will remain constant and can not be modified. This means that a variable remains constant throughout the lifetime of the program.\\
+
+\begin{lstlisting}[language=C,caption={File const.c, const qualifier},captionpos=b,label=const]
+ 1 #include <stdio.h>
+ 2 
+ 3 int main(void)
+ 4 {
+ 5 const int i=42;
+ 6 
+ 7 i=23;
+ 8 
+ 9 return i;
+10 }
+
+INTERACTION
+
+$ cc const.c
+const.c:7:2: error: cannot assign to variable 'i' with const-qualified type
+      'const int'
+i=23;
+~^
+const.c:5:11: note: variable 'i' declared const here
+const int i=42;
+~~~~~~~~~~^~~~
+1 error generated.
+$
+\end{lstlisting}
+
+Listing \ref{const} actually produces an error but it shows the principle of the \textit{const} qualifier. If you set a variable to \textit{const} it cannot be modified and if there is an attempt to modify the variable the compiler will throw out and error claiming there was an attempt to modify a \textit{const} variable. 
+
+For embedded systems the \textit{const} qualifier indicates that the variable can be placed in read-only memory. This is useful when there are constraints on the size of volatile memory.
+
+\subsection{static qualifier} \label{static}
+
+\index{static variable}
+
+A static qualifier means that a variable will keep its value between invocations. This is slightly different from global variables where the scoping means that the variable is available throughout the code. A static variable remains within its scope.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File static.c, static qualifier},captionpos=b,label=unique]
+ 1 #include <stdio.h>
+ 2 
+ 3 int unique_id(void)
+ 4 {
+ 5 static int uid = 1762;
+ 6 
+ 7 return ++uid;
+ 8 }
+ 9 
+10 int main(void)
+11 {
+12 printf("... uid 0 = %d\n",unique_id());
+13 printf("... uid 1 = %d\n",unique_id());
+14 
+15 return 0;
+16 }
+
+INTERACTION
+
+17 $ cc static.c
+18 $ ./a.out
+19 ... uid 0 = 1763
+20 ... uid 1 = 1764
+21 $
+	
+\end{lstlisting}
+
+The listing \ref{unique} shows the function \textit{unique\_id(...)} incrementing a \textit{static} variable each time it is invoked. The scope remains the same. The returning value is unique because it is incremented by the value 1 each time. The initial value is 1762. If the \textit{static} qualifier was not present the returned \textit{uid} variable would always remain 1763.
+
+The \textit{static} qualifier can also applied to a function call to restrict the scope of the function to the current file.
+
+\subsection{volatile qualifier}
+
+\index{volatile variable}
+
+The volatile qualifier informs the compiler that a variable may be updated by another entity, either hardware or software. This in effect disables any optimizations or assumptions that a compiler could have considered. Examples, hardware registers, shared variables between interrupts and thread contexts, multiprocessor access to memory contents, DMA, etc..
+
+As mentioned this entity can be either hardware or software. The qualifier is extremely important in embedded systems when accessing hardware registers. A program cannot determine what the value is at any one point in time and the compiler will therefore not carry out any optimizations such as removing further reads. The hardware register can be continuously updating.
+
+C Compilers do not produce the same code and do not guarantee the same responses without the use of qualifiers. It is important to use wisely.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File volatile.c, volatile qualifier},captionpos=b,label=signal]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <signal.h>
+ 4 #include <unistd.h>
+ 5  
+ 6 volatile int x=0;
+ 7  
+ 8 void signal_handler(int signal_number)
+ 9 {
+10   if (signal_number==SIGINT)
+11   {
+12   printf("signal SIGINT caught\n");
+13   x=x+1;   
+14   } 
+15 }
+16
+17 int main(void)
+18 {
+19   if (signal(SIGINT,signal_handler)==SIG_ERR)
+20   {
+21   printf("\nproblem catching SIGINT\n");
+22   exit(EXIT_FAILURE);
+23   }
+24   
+25  while (x<3) ; 
+26 
+27 return 0;
+28 }
+
+INTERACTION
+
+29 $ ./a.out
+30 waiting for 3 ctrl-c key presses
+31 ^Csignal SIGINT caught
+32 ^Csignal SIGINT caught
+33 ^Csignal SIGINT caught
+34 3 ctrl-c key presses occurred
+35 $
+
+\end{lstlisting}
+
+The code in listing \ref{signal} guarantees the correct response by using the \textit{volatile} qualifier. It shows a program that uses software interrupts to update a variable called \textit{x}. The program starts by going into an endless loop. It only escapes once ctrl-C is pressed three times. If the variable was not given the qualifier \textit{volatile} the program is not guaranteed to exit since the variable may be held in a register which isn't updated.  
+
+\index{callback}
+\index{signal(...)}
+\index{unistd.h}
+\index{signal.h}
+\index{SIGINT}
+
+By placing the \textit{volatile} qualifier on the variable the Compiler has been informed that the variable is likely to change without its knowledge. The function \textit{signal(...)} on line:19 creates a callback which is only invoked when crtl-c is pressed. The callback is \textit{signal\_handler(...)} defined on line:8. \textit{SIGINT} identifies which event to attach to for ctrl-C events.
+
+From the output, it can be seen that ctrl-C is pressed three times on line:31:32:33. Each time this happens the value of \textit{x} is incremented by one. When the value reaches three the program terminates, as shown on line:34.
+
+
+\subsection{Enumeration type}
+\index{enum} \index{enumeration}
+
+The enumeration (\textit{enum}) type is used to enumerate data. It is a basic mapping of names to a number sequence e.g. Zero=0,One=1,...,Ten=10. This variable type is particularly useful when expressing a set of known fixed word-number mappings. For instance, the days-of-the-week or months-in-the-year, where it would be useful to have a limited mapping sequence.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File enum.c, enumeration type},captionpos=b,label=enum]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 enum direction {North,South,West,East};
+ 4 enum day {Mon=1,Tue,Wed,Thu,Fri,Sat=10,Sun};
+ 5 
+ 6 int main(void)
+ 7 {
+ 8 enum direction heading;
+ 9 enum day today;
+10 
+11 today=Wed;
+12 heading=North;
+13 
+14 printf ("today is %d and moving in %d direction \n",today,heading);
+15 
+16 return 0;
+17 }
+
+INTERACTION
+
+18 $ ./a.out
+19 today is 2 and moving in 0 direction 
+20 $
+
+\end{lstlisting}
+
+Listing \ref{enum} shows an enumeration example. Line:3 maps the standard compass directions of \textit{North},\textit{South},\textit{West} and \textit{East} to the values of 0,1,2 and 3 respectively. Line:4 maps the days-of-the-week to the values 1,2,3,4,5,10 and 11 respectively. \textit{Mon=1} sets the sequence start to 1, \textit{Tue} become 2 and so on a long the list. By default the sequence starts at 0.
+
+Line:4 also shows two different sequences within the enumeration list. In this example the weekend is identified by the values 10 and 11. This is achieved by setting \textit{Sat=10}, \textit{Sun} then follows with 11. 
+
+The output from the program is shown on line:19, \textit{\{Wed,North\}} are shown to enumerate to the values of 3 (\textit{today}) and 0 (\textit{heading}) respectively.
+

@@ -1,0 +1,222 @@
+\section{Dynamic Memory Allocation} \label{DynamicMem}
+
+Dynamic memory is the allocation and deallocation of memory while a program is executing. It is used primarily for building data structures where the amount of memory required is unknown. There are two main mechanisms, the first is to allocate memory and the second is to deallocate memory. The C programming language offers two main functions, namely \textit{malloc(...)} and \textit{free(...)}. There are many variations but we will concentrate on these two specific functions.  
+
+Once memory has been allocated there are number of useful functions that are available to initialize and copy memory. These functions are \textit{memset(...)} and \textit{memcpy(...)}.  
+
+A \textit{memory leak} is when memory that is no-longer required remains allocated and forgotten. If this problem remains unchecked and continues to grow in severity, then the program will finally halt due to a lack of available memory. Memory leaks can be a major cause of program failure.
+ 
+For deeply embedded or safety-critical systems, dynamic memory is not recommended for general use. During the initialization phase it is acceptable to use dynamic memory to create the right environment but once executing the memory is recommended to be treated as static or non-dynamic. Even in this case, it is quite common to implement an allocator which will look somewhat like a memory pool (fixed-block size allocation).
+
+\subsection{malloc(...)}
+
+\index{malloc(...)}
+
+The \textit{malloc(...)} function dynamically allocates memory in the system. This memory is allocated in a place called the \textit{heap}. The \textit{heap} is an area of memory dedicated to dynamic memory. Once memory has been successfully allocated a starting address is returned. If the memory allocation is unsuccessful NULL is returned.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: malloc.c},captionpos=b,label=malloc]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <string.h>
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 char src[]="Hello";
+ 8 char *dest;
+ 9 
+10 dest = (char *)malloc(strlen(src)+1);
+11 
+12   if (dest==NULL)
+13   {
+14   fprintf(stderr,"error: malloc failed to allocate in %s at %d\n",__FILE__,__LINE__);
+15   exit(EXIT_FAILURE);
+16   }
+17 
+18 printf ("dest \"%s\" == src \"%s\"\n",strcpy(dest,src),src);
+19  
+20 return 0;
+21 } 
+
+INTERACTION
+
+$ cc malloc.c
+$ ./a.out
+dest "Hello" == src "Hello"
+$
+
+\end{lstlisting}
+
+Listing \ref{malloc} shows code that allocates 100 integers, each integer takes up 4 bytes which effective means 400 bytes are allocated or reserved. The allocation occurs on line:18. The sizeof macro calculates the size of a specific type, in this case it returns the value 4. \textit{malloc(...)} allocates bytes.
+
+There are a number of variations of this function and it may be worth exploring further what those variations provide. 
+
+For embedded programmers, there is often a requirement to allocate a large amount of memory. This is achieved using arrays. The arrays are statically defined at the beginning of the program or system. When smaller memory chunks are required they are taken from the free spaces in the arrays. All the allocation management is controlled by the programmer directly.
+
+\subsection{free(...)}
+
+\index{free(...)}
+
+The C Programming Language, unlike some other languages which automatically free unused memory i.e. garbage collection, does not deallocate memory automatically. This job is left to the programmer. It is always good policy to deallocate dynamic memory which is no longer required or before a program terminates. 
+
+Memory deallocation is achieved using the \textit{free(...)} function. It releases an important resource which can be used by another program or even the same executing program. This method of deallocating memory is relatively simple and is achieved by passing the pointer, provided by \textit{malloc(...)}, into the \textit{free(...)} function. The memory is then no longer protected.
+
+When a User program (process) terminates either unexpectedly or planned, the process is destroyed. This means all the associated allocated memory for that specific process is deallocated and free-ed. For an operating system kernel or device driver there may be more complicated scenarios to handle. It is good practice to deallocate all allocated memory when exiting a kernel function or device driver when that memory is no-longer required. In other words, don't assume the system will take care of allocated memory no-longer in-use.    
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: free.c},captionpos=b,label=free]
+
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 #include <stdlib.h>
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 uint8_t *ptr;
+ 8 
+ 9 ptr = (uint8_t *) malloc(100*4); // allocate 400 bytes
+10   
+11   if (ptr==NULL)
+12   {
+13   fprintf(stderr,"malloc failed %s at %d\n",__FILE__,__LINE__);
+14   exit(EXIT_FAILURE);
+15   }
+16   
+17 printf("... successfully allocated 400 bytes, now available \n");
+18 
+19 /* ... do something useful */
+20 
+21 free(ptr); // deallocate 400 bytes
+22 
+23 printf("... successfully deallocated 400 bytes, now not available \n");
+24 
+25 return 0;
+26 }
+
+INTERACTION
+
+$ cc free.c
+$ ./a.out
+... successfully allocated 400 bytes, now available 
+... successfully deallocated 400 bytes, now not available 
+$ 
+
+\end{lstlisting}
+
+Listing \ref{free} shows the use of \textit{malloc(...)} and \textit{free(...)}. The example shows the allocation of 400 bytes on line:9 and then the deallocation on line:21. Also notice the casting to a specific type on line:9. If the allocation isn't successful the program terminates. If successful then \textit{free(...)} is called to deallocate the memory.
+ 
+\subsection{memset(...)}
+\index{memset(...)}
+
+The \textit{memset(...)} function is used to initialize memory regions. This function can be highly optimized "tuned" for a particular architecture. Tuning involves optimizing to the the target cache architecture of the platform. Performance can vary depending upon whether the data being manipulated is a multiple of the cache line length. This is true for all of the inbuilt memory functions. 
+
+However, please note application portability is sometimes required and more generic memory function implementations are used. This is because the highly optimized versions will not be optimal for all architectures and in some cases will cause fatal errors.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: memset.c},captionpos=b,label=memset]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <stdint.h>
+ 4 #include <string.h>
+ 5 #include <time.h>
+ 6 
+ 7 int main(void)
+ 8 {
+ 9 uint8_t *ptr;
+10 int x;
+11 clock_t start;
+12 
+13 ptr = malloc(1024*1024);
+14 
+15   if (ptr==NULL)
+16   {
+17   fprintf(stderr,"could not allocate memory");
+18   exit(EXIT_FAILURE);
+19   }
+20 
+21 start = clock();
+22 memset(ptr,0,(1024*1024)); //zero initialize memory
+23 printf ("... time taken to zero 1MB: %lf\n",(double)(clock()-start)/CLOCKS_PER_SEC);
+24 
+25 free(ptr);
+26 
+27 return 0;
+28 }
+
+INTERACTION
+
+$ cc memset.c
+$ ./a.out
+... time taken to zero 1MB: 0.000754
+$ 
+	
+\end{lstlisting}
+
+Listing \ref{memset} shows an example of setting memory. The function \textit{memset(...)}, on line:22, sets 1MB of memory to zero. This is a common technique for initializing new memory. Memory can have arbitrary values so by setting it to a known value the memory becomes consistent and if the memory is then used as a pointer without initialization, asserts checking for void will be triggered.
+
+\subsection{memcpy(...)}
+\index{memcpy(...)}
+
+\textit{memcpy(...)} does as the name implies, it copies memory from one location to another. Again similar to \textit{memset(...)} there can be highly optimized versions available which are specific to a particular hardware implementation. The optimization levels can vary depending on the size of data being copied. Note for memory regions which overlap it is recommended that \textit{memmove(...)} is used as an alternative. 
+\index{memmove(...)}
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File: memcpy.c},captionpos=b,label=memcpy]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 #include <stdint.h>
+ 4 #include <string.h>
+ 5 #include <time.h>
+ 6 
+ 7 #define CMAX (1024*1024)
+ 8 
+ 9 int main(void)
+10 {
+11 uint8_t *dest,*src;
+12 int x;
+13 clock_t start;
+14 
+15 dest = malloc(CMAX);
+16 src = malloc(CMAX);
+17 
+18   if (dest==NULL || src==NULL)
+19   {
+20   fprintf(stderr,"could not allocate memory");
+21   exit(EXIT_FAILURE);
+22   }
+23 
+24 memset(src,'a',CMAX);
+25 
+26 start = clock();
+27 memcpy(dest,src,CMAX); 
+28 printf("- time taken to zero %dB: %lf\n",CMAX,(double)(clock()-start)/CLOCKS_PER_SEC);
+29 
+30 x=0;
+31 
+32   while (*(src+x)==*(dest+x) && ++x<CMAX);
+33   
+34   if (x!=CMAX)
+35     printf ("... memcpy failed at %x\n",x);
+36 
+37 free(src);
+38 free(dest);
+39 
+40 return 0;
+41 }
+
+INTERACTION
+
+$ cc memcpy.c
+$ ./a.out
+- time taken to zero 1KB: 0.000007
+$ 
+
+\end{lstlisting}
+
+Listing \ref{memcpy} shows an example using memory copy.  The example simply copies memory from one to location to another. It takes source and destination pointers and the size of the data being copied. The function on line:27 copies CMAX bytes from the \textit{src} location to a \textit{dest} location. Finally the memory locations are compared on lines:32-35. If the memory is inconsistent a message is sent to the console.
+
+
+
+
+
+
+

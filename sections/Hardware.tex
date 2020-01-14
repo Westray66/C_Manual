@@ -1,0 +1,158 @@
+\section{Accessing Hardware} \label{Hardware}
+
+C plays an important role when it comes to directly accessing hardware. C code is used to write and read hardware via what is called \textit{memory-mapped registers} \index{memory-mapped registers}. Registers are used to provide multiple functions including status, control and data i/o. A hardware register effectively acts as a contract between the hardware and software. Contracts can be complex and unforgiving, where mistakes or misunderstandings can lead to undesirable consequences. In extreme circumstances these consequences can lead to severe damage or instability of the system. 
+
+ Outside of the processor, memory-mapped registers are similar to memory locations. They are used for everything from initializing external pins to interacting with hardware peripherals (e.g. serial port). Within the processor there are different methods to access registers, each processor architecture is unique in how this is accomplished. We will not discuss how processor registers are accessed since this is architecture specific. 
+ 
+ Externally, memory-mapped registers are assigned memory addresses and depending upon the register-type they allow reading from a register and/or writing to a register. These memory addresses are placed in what is called the \textit{memory-map}. Hardware registers are configured in many different ways, for example a register can be set up to be read-only, write-only or allow both read-write. \index{memory-map}
+ 
+ There can be timing and ordering aspects to registers, an update may not occur instantaneously or one register may not be accessed before another. A register may have bits which remain fixed and cannot or should not be changed. Registers can be private and not available for normal use. 
+ 
+There are many variations and subtleties to consider when accessing hardware registers. Detailed reading of the hardware specification is unavoidable and mandatory at this level. Interfacing with hardware is the ultimate level of control, everything else relies on this low-level engagement being successful.
+
+\subsection{Masks} \index{mask}
+
+Masks are used to guarantee that only specific bits are updated. This is particularly useful when handling memory-mapped registers where each bit can be assigned a special function. The mask is used in conjunction with a \textit{read-modify-write} procedure to read and update a memory-mapped register. \index{read-modify-write}
+
+\begin{enumerate}
+\item Read: involves reading a memory-mapped register and placing the value into a variable.
+\item Modify: involves two stages. The first involves preparing the data to be updated by forcing the bits for modification to be zero (0). Then the second stage involves updating the bits with new values.
+\item Write: finally the new updated variable is written back to the memory-mapped register. 
+
+\end{enumerate}
+
+Modify stage involves first using a \textit{bitwise AND} operation to set the bits for modification to zero. The \textit{mask} bit pattern determines the bits that remain unchanged (i.e. bits set to 1) and the bits to be modified (i.e. bits set 0). The second part involves updating the specific bits by applying a \textit{bitwise OR} operation on the variable with new update bit values. Once the new register value is complete it is then written back to the memory-mapped register.
+
+Note: a \textit{mask} bit pattern means bits set to 1 represent no change and bits set to 0 represent future change. By contrast, \textit{bitwise NOT} \textit{\char`\~mask} bit patterns means the opposite, bits set to 1 represents future change and bits set to 0 are unchanged.
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: mask.c},captionpos=b,label=mask]
+
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 int main(void)
+ 5 {
+ 6 uint32_t reg;
+ 7 uint32_t mask;
+ 8 
+ 9 // init values ...
+10 reg =  0x12345678; // 0b0001.0010.0011.0100.0101.0110.0111.1000
+11 mask = 0xFFF00FFF; // 0b1111.1111.1111.0000.0000.1111.1111.1111
+12 
+13 printf ("set reg          : 0x%8x \n",reg);
+14 printf ("set mask         : 0x%8x \n",mask);
+15 
+16 // action ...
+17 reg &= mask;       // 0b0001.0010.0011.0000.0000.0110.0111.1000
+18 
+19 printf ("set reg &=  mask : 0x%8x \n",reg);
+20 
+21 reg |= (0x00054000 & ~mask); // 0b0001.0010.0011.0101.0100.0110.0111.1000
+22 
+23 printf ("set reg |= new   : 0x%8x \n",reg);
+24 
+25 return 0;
+26 }
+
+INTERACTION
+
+$ cc mask.c
+$ ./a.out
+set reg          : 0x12345678 
+set mask         : 0xfff00fff 
+set reg &=  mask : 0x12300678 
+set reg |= new   : 0x12354678 
+$
+
+\end{lstlisting}
+
+Listing \ref{mask} shows a simple example of using a mask with a binary pattern. On line:11 a mask is set to 0xFFF00FFF. This bit mask sets bits 0-11 and 20-31 to one (1), and bits 12-19 to zero (0). Line:17 shows the \textit{mask} being applied to \textit{reg}, using a \textit{bitwise AND} operation. All the values from bits 0-11 and 20-31 remain unchanged (i.e. where ever a bit is 1 in the \textit{mask}) after the operation, whereas the middle bits 12-19 are forced to be zero (0) i.e. = 0b000100100011\textbf{00000000}011001111000. 
+
+Line:21 shows only bits 12-19 being updated in the \textit{reg} variable, the rest of the bits remain unchanged. This example doesn't use a real hardware register but shows the procedure of setting specific bits within a 32-bit unsigned integer variable. The final result is the 45 is replaced with 54 in the middle of the final value i.e. 0x123\textbf{54}678.  .
+
+\subsection{Define's and data structures}
+
+There are effectively two standard methods to access hardware registers within C. The first uses the \textit{\#define} macro. This method is portable and straightforward, as-in it doesn't require much in the way of compiler support. The second is more elegant and uses bitfield structures to map hardware registers. The structures can be less portable and slightly more complicated to get right. Both methods have advantages and disadvantages.
+
+\subsubsection{Using define's}
+
+This method simply accesses the hardware registers using absolute memory addresses. It is quite obvious that the code is dealing with hardware memory addresses since the addresses are handled by \textit{\#define}'s. The main disadvantage it that is is quite detailed and requires a lot of bitwise manipulations.
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: volhwreg.c},captionpos=b,label=rawaccess]
+	
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 #define REG_COMMS      0x80000000
+ 5 #define VOLATILE8(s)   *(volatile uint8_t *)(s)
+ 6 
+ 7 int main(void)
+ 8 {    
+ 9 uint8_t comms;
+10 
+11 // READ ...
+12 comms = VOLATILE8(REG_COMMS); 
+13 
+14 // MODIFY ...
+15 comms &= 0x80; /* bitwise AND 0b_000.0000 = 00  */
+16 comms |= 0x22; /* bitwise OR  0b_010.0010 = 34  */ 
+17 comms |= 0x80; /* bitwise OR  0b1010.0010 = 180 */
+18 
+19 // WRITE ...
+20 VOLATILE8(REG_COMMS) = comms;
+21 
+22 // OUTPUT
+23 printf ("parity: %d\n",(VOLATILE8(REG_COMMS) & 0x80) >> 7);
+24 printf ("data: %d\n",(VOLATILE8(REG_COMMS) & 0x7F));
+25 
+26 return 0;
+27 }
+
+\end{lstlisting}
+
+Listing \ref{rawaccess} shows a fictitious peripheral called COMMS. The COMMS peripheral register  is located at address 0x80000000, shown on lines:4:5. Line:4 shows a simple \textit{\#define} defining a macro called \textit{REG\_COMMS} to be set at an address 0x80000000. By contrast, line:5 casts a value to a volatile 8-bit unsigned int pointer. This useful when either reading or writing to a hardware register.
+
+Line:12 reads an unsigned 8-bit value from the \textit{REG\_COMMS} peripheral. Lines:15-17 modify the value. In this example line:15 clears the \textit{comms} value from bit 0 to 6 with a \textit{bitwise AND} operation. Bit 7 is left alone as the the parity bit until line:17 where it is set to 1 with a \textit{bitwise OR} operation. Finally line:20 writes the result back to the hardware register.
+
+\subsubsection{Using bitfields} \index{bitfields}
+
+Bitfields are a method of using a data structure to define the fields within a hardware register. It is a more elegant way to access hardware registers since access via a data structure rather than macros containing memory addresses. Each bitfield is labelled and accessed independently.  
+
+\begin{lstlisting}[language=bash,showstringspaces=false,caption={File: bitfield.c},captionpos=b,label=bitfield]
+
+ 1 #include <stdio.h>
+ 2 #include <stdint.h>
+ 3 
+ 4 typedef struct
+ 5 {
+ 6 uint8_t /* RW */ data:7;
+ 7 uint8_t /* RW */ parity:1;
+ 8 } volatile comms;
+ 9 
+10 comms *device = (comms *)0x80000000;
+11 
+12 int main(void)
+13 {
+14 
+15 device->parity = 1;
+16 device->data = 34;
+17 
+18 printf ("parity: %d \n",device->parity);
+19 printf ("data: %d \n",device->data);
+20 
+21 return 0;
+22 }
+	
+\end{lstlisting}
+
+Listing \ref{bitfield} shows a bitfield example of the fictitious peripheral called \textit{comms}. Lines:6:7 defines the fields \textit{data} and \textit{parity}. Line:10 assigns the memory address of the peripheral. Lines:15:16 shows the bitfields being set.
+
+\subsection{Memory ordering} \index{out-of-order} \index{in-order} \index{memory ordering}
+
+There are two main processor types, namely \textit{in-order} (IO) and \textit{out-of-order} (OoO). OoO processors are designed to maximize performance. These processors normally target more complex and less real-time applications. Memory operations order is not guaranteed. For a low-level programmer this means that the memory accesses may not occur in the order they are written or expected to execute. This is due to the sophistication of the memory hierarchy required to achieve optimal performance.
+
+For low-level embedded software this is obviously problematic since accessing hardware frequently involves precise sequential ordering and can be time dependent. To get around this characteristic, architectures provide a set of specialized instructions. These instructions are called \textit{barrier} or \textit{fence} instructions. Note for user or application code the kernel handles the sequencing details. 
+
+The \textit{barrier} instruction forces an ordering. Normally making sure that all the existing outstanding reads and writes have been carried out. To help with the ordering, Linux and the other operating systems, provides a set of useful veneer C functions. These functions effectively call the barrier instructions directly. For example, the Linux kernel has a number of low level function calls. One call \textit{mb(...)} guaranteers all outstanding system-wide memory operations have been committed. 
+
+This subject can get complex quickly, so to understand this topic further read the documentation on memory ordering for the specific processor being used. Also there are some modern low-level instructions which combine both the cache operations and memory barriers together into a single instruction. Other terms which may be worth exploring are \textit{weak memory ordering}, \textit{strong memory ordering} and \textit{memory consistency models}.

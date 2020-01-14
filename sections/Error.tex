@@ -1,0 +1,162 @@
+\section{Errors} \label{errors}
+
+Errors are good, and capturing errors is even better. They identify when a program is not running as expected. It is important to capture all errors. Error capturing involves reporting and in some cases handling the error. For embedded systems, errors are especially important to track down since they cause instability, and instability is dangerous and costly. There are two basic types of errors \textit{known} and \textit{unknown}.
+
+\textit{Known errors} are errors which can be expected. For example a function call returning a \textit{NULL} value. These are relatively easy to handle. By contrast an \textit{unknown error} is unexpected or spurious. Runtime problems are either caused by a programming deficiency or bad data. 
+
+The C language offers a number of mechanisms to handle errors safely.
+
+\subsection{exit(...)}
+
+\index{exit(...)}
+
+The function \textit{exit(...)} halts a program and returns to the parent process. \textit{exit(...)} takes one argument, an integer which has three major states 0, EXIT\_SUCCESS and EXIT\_FAILURE. Apart from  multithreaded programs, \textit{exit(...)} is the most frequently called function when an error occurs. 
+
+For embedded systems, this function may not be the best course of action since exiting is more problematic than tackle the cause. More thought and safety planning is required for embedded systems.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File exit.c, using exit(...) to terminate program},captionpos=b,label=exit]
+
+ 1 #include <stdio.h> 
+ 2 #include <stdlib.h>
+ 3
+ 4 int main(void)
+ 5 {
+ 6 FILE *handle;
+ 7  
+ 8 handle = fopen("does_not_exist.dat","r");
+ 9
+10   if (handle==NULL)
+11   {
+12   printf("error: couldn't open file \n");
+13   exit(EXIT_FAILURE);
+14   }
+15
+16 printf("*** terminated program without errors\n");
+17 return 0;
+18 }
+
+INTERACTION
+
+$./a.out
+error: couldn't open file
+$
+
+\end{lstlisting}
+
+Listing \ref{exit} shows an example where the \textit{printf(...)} statement on line:17 is never reached since the program terminates on line:14. The \textit{exit(...)} function, when called, terminates the program.
+
+\subsection{stderr}
+
+\index{stderr}
+
+There are multiple streams in C and one of the streams is \textit{stderr}, see section \ref{IO} for more information on streams. \textit{stderr} is an output stream that is normally mapped to the terminal but optionally can be redirected to a file.
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File stderr.c, using stderr stream},captionpos=b,label=stderr]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3
+ 4 int main(void)
+ 5 {
+ 6 FILE *handle;
+ 7  
+ 8 handle = fopen("does_not_exist.dat","r");
+ 9
+10   if (handle==NULL)
+11   {
+12   fprintf (stderr,"error: file not found \"does_not_exist.dat\" in %s at %d\n",__FILE__,__LINE__);
+13   exit(EXIT_FAILURE);
+14   }
+15
+16 return 0;
+17 }
+
+INTERACTION
+
+$ ./a.out
+error: file not found "does_not_exist.dat" in stderr.c at 13
+$
+\end{lstlisting}
+
+Listing \ref{stderr} shows an example of using \textit{stderr} stream. Line:12 directs an error message to the error stream. The message includes the file name (denoted by \_\_FILE\_\_) and the line number (denoted by \_\_LINE\_\_). Line:12 uses the \escape{} character preceding  the “ as a method to identify the character as being part of the string rather than code.
+
+\subsection{perror(...)}
+
+\index{perror(...)}
+
+The function \textit{perror(...)} takes an input string and combines it with a standard error message. The standard error message is defined from the global \textit{errnum} variable. The input string argument is supplied by the program itself.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File perror.c, using perror(...)},captionpos=b,label=perror]
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3  
+ 4 int main(void)
+ 5 {
+ 6 FILE *handle;
+ 7 
+ 8 handle = fopen("does_not_exist.dat","r");
+ 9
+10   if (handle==NULL)
+11   {
+12   perror("error: file \"does_not_exist.dat\"");
+13   exit(EXIT_FAILURE);
+14   }
+15
+16 return 0;
+17 }
+
+INTERACTION
+
+$./a.out
+error: file "does_not_exist.dat": No such file or directory
+$
+\end{lstlisting}
+
+Listing \ref{perror} shows the \textit{perror(...)} function being called on line:12. The input string identifies this as an error plus the name of the file which caused the error. In this case the name is \textit{does\_not\_exist.dat}.
+
+\subsection{assert(...)} \label{assert}
+
+\index{assert(...)}
+
+\textit{assert(...)} is used to capture runtime errors. \textit{assert(...)} is a macro supplied by the header file \textit{assert.h}. It is used mostly in development, if a condition is false then the program halts with a rules validation error. It is a simple concept that can speed up development enormously if used aggressively.
+
+Specifically for embedded a special implementation of \textit{assert(...)} may be required because just halting a program midway through execution may be dangerous or problematic without first considering how to put the embedded device into a safe state. Also consider using \textit{atexit(...)} in development.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File assert.c, using  assert(...) macro},captionpos=b,label=assertex]
+ 1 #include <stdio.h>
+ 2 #include <assert.h>
+ 3  
+ 4 int add_positive_numbers (int a, int b)
+ 5 {
+ 6 assert ((a>=0) && (b>=0)); // check to see variables are positive
+ 7 return (a+b);
+ 8 }
+ 9
+10 int main (void)
+11 {
+12 int answer;
+13 
+14 answer = add_positive_numbers (10,10);
+15 printf ("answer1=%d\n",answer);
+16
+17 answer = add_positive_numbers (10,-10); // assertion error
+18 printf ("answer2=%d\n",answer);
+19
+20 return 0;
+21 }
+
+INTERACTION
+
+$ cc assert.c
+$ ./a.out
+answer1=20
+Assertion failed: ((a>=0) && (b>=0)), 
+   function add_positive_numbers, file assert.c, line 6.
+Abort trap: 6
+$
+\end{lstlisting}
+
+In listing \ref{assertex}, \textit{assert} is used to check whether the two parameters are positive. If variable \textit{a} or \textit{b} isn't positive then the program halts showing the location where the fault occurred. This can be really useful in identifying problems that are not normally caught by the debugger or general testing. 
+
+It is highly recommended to use \textit{assert} throughout any code. It acts as a sanity checker. The code may be absolutely correct but the data can be wrong. Invalid data causes code to fail, so it is important during development to capture bad data.
+

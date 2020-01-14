@@ -1,0 +1,191 @@
+\section{Comparators, Operators and Shifts}
+
+These are the core operators used for mathematical manipulation, assignment and comparison. All expressions adhere to the order of operators. Remember maths class or \textit{Please Excuse My Dear Aunt Sally} (PEMDAS) on how mathematical functions are defined, the C language is no different.
+
+\subsection{Comparators} \label{comparisons}
+
+C language includes the following comparators. Comparators are fundamental in making control decision for program flow. The expressions result to either a 1 (true) or 0 (false) in the C language.
+
+\index{==, equal} 
+\index{"!=, not equal} 
+\index{\textgreater, greater than} 
+\index{\textgreater=, greater than or equal} 
+\index{\textless=, less than or equal}
+
+\index{comparators}
+\index{comparators!==, equal} 
+\index{comparators!"!=, not equal} 
+\index{comparators!\textgreater, greater than} 
+\index{comparators!\textgreater=, greater than or equal} 
+\index{comparators!\textless=, less than or equal}
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | l | c |} 
+    \hline
+    OPERATOR & DESCRIPTION & EXAMPLE \\ \hline
+    == & Equal & a == b  \\ \hline
+    != & Not equal & a != b  \\ \hline
+    \textgreater & Greater than & a \textgreater b \\ \hline
+    \textless & Less than & a \textless b \\ \hline
+    \textgreater= & Greater than and equal & a \textgreater= b \\ \hline
+    \textless= & Less than and equal & a \textless= b \\ \hline
+  \end{tabular}
+\caption{Comparators}
+\label{table:comparators}
+\end{table*}
+
+\subsection{Logic operators}
+
+C language includes the following logical operators. Logical operators work on boolean values. C provides the standard set of logical operators.
+
+
+\index{\&\&, logical AND} 
+\index{\textbar\textbar, logical OR} 
+\index{"!, logical NOT} 
+
+\index{logic operators}
+\index{logic operators!\&\&, logical AND} 
+\index{logic operators!\textbar\textbar, logical OR} 
+\index{logic operators!"!, logical NOT} 
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | l | c |}
+    \hline
+    OPERATOR & DESCRIPTION & EXAMPLE \\ \hline
+    \&\& & Logical AND & a \&\& b  \\ \hline
+    \textbar\textbar & Logical OR & a \textbar\textbar \, b \\ \hline
+    ! & Logical NOT & !a \\ \hline
+  \end{tabular}
+\caption{Logic operators}
+\label{table:logicops}
+\end{table*}
+
+\subsection{Bitwise operators}
+
+C language also includes the following bitwise operators. The bitwise operators are extremely useful when manipulating hardware registers. Hardware registers require bits to be individually controlled. These operators are important for setting and reading individual bits in hardware registers.
+
+\index{\&, bitwise AND} 
+\index{\textbar, bitwise OR} 
+\index{\char`\~, bitwise NOT} 
+\index{\char`\^,bitwise XOR} 
+\index{\textgreater\textgreater, bitwise shift left}
+\index{\textless\textless, bitwise shift right}
+
+\index{bitwise operators}
+\index{bitwise operators!\&, bitwise AND} 
+\index{bitwise operators!\textbar, bitwise OR} 
+\index{bitwise operators!\char`\~, bitwise NOT} 
+\index{bitwise operators!\char`\^,bitwise XOR} 
+\index{bitwise operators!\textgreater\textgreater, bitwise shift left}
+\index{bitwise operators!\textless\textless, bitwise shift right}
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | l | c |}
+    \hline
+    OPERATOR & DESCRIPTION & EXAMPLE \\ \hline
+    \& & Bitwise AND & a \& b  \\ \hline
+    \textbar & Bitwise OR & a \textbar \, b \\ \hline
+    \char`\~ & Bitwise NOT & \char`\~a \\ \hline
+    \char`\^ & Bitwise XOR & a \char`\^ \, b \\ \hline
+     \textgreater\textgreater & Bitwise Shift Left & a \textgreater\textgreater \,  3 \\ \hline
+     \textless\textless & Bitwise Shift Right & a \textless\textless \, 3 \\ \hline     
+  \end{tabular}
+\caption{Bitwise operators}
+\label{table:bitwiseops}
+\end{table*}
+
+\subsection{Arithmetic operators}
+
+C language includes the following arithmetic operators. Arithmetic operators provide the necessary methods to build mathematical equations.
+
+\index{*, multiply}
+\index{+, addition}
+\index{-, subtraction}
+\index{/, division}
+\index{\%, modulo}
+\index{++, increment pre/post}
+\index{-\,-, decrement pre/post}
+
+\index{arithmetic operators}
+\index{arithmetic operators!*, multiply}
+\index{arithmetic operators!+, addition}
+\index{arithmetic operators!-, subtraction}
+\index{arithmetic operators!/, division}
+\index{arithmetic operators!\%, modulo}
+\index{arithmetic operators!++, increment pre/post}
+\index{arithmetic operators!-\,-, decrement pre/post}
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | l | c |}
+    \hline
+    OPERATOR & DESCRIPTION & EXAMPLE \\ \hline
+    * & Arithmetic multiply & a * b  \\ \hline
+    + & Arithmetic addition & a + b \\ \hline
+    - & Arithmetic subtraction & a - b \\ \hline
+    / & Arithmetic divide & a / b  \\ \hline
+    \% & Modulo & a \% b \\ \hline
+    ++ & Increment pre or post & ++a; or a++; \\ \hline
+    -\,- & Decrement pre or post & -\,-a; or a-\,-; \\ \hline
+  \end{tabular}
+\caption{Arithmetic operators}
+\label{table:arithmeticops}
+\end{table*}
+
+\subsection{Compound assignment operators}
+
+Compound assignment operators are the operators which are used to update variable contents.
+
+\index{=, assignment}
+\index{+=, addition assignment}
+\index{-=, subtraction assignment}
+\index{*=, division assignment}
+\index{\&=, bitwise AND assignment}
+\index{\textbar=, bitwise OR assignment}
+\index{\char`\^=, bitwise XOR assignment}
+\index{\%=, modulo assignment}
+\index{\textgreater\textgreater=, bitwise right shift assignment}
+\index{\textless\textless=, bitwise left shift assignment}
+
+\index{compound operators}
+\index{compound operators!=, assignment}
+\index{compound operators!+=, addition assignment}
+\index{compound operators!-=, subtraction assignment}
+\index{compound operators!*=, division assignment}
+\index{compound operators!\&=, bitwise AND assignment}
+\index{compound operators!\textbar=, bitwise OR assignment}
+\index{compound operators!\char`\^=, bitwise XOR assignment}
+\index{compound operators!\%=, modulo assignment}
+\index{compound operators!\textgreater\textgreater=, bitwise right shift assignment}
+\index{compound operators!\textless\textless=, bitwise left shift assignment}
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | l | c |}
+    \hline
+    OPERATOR & DESCRIPTION & EXAMPLE \\ \hline
+    =  & Assignment & a = b; \\ \hline
+    += & Addition assignment & a += b;  \\ \hline
+    -= & Subtraction assignment & a -= b; \\ \hline
+    *= & Multiply assignment & a *= b; \\ \hline
+    /= & Division assignment & a /= b; \\ \hline
+    \%= & Modulo assignment & a \%= b; \\ \hline
+    \&= & Bitwise AND assignment & a \&= b; \\ \hline
+    \textbar= & Bitwise OR assignment & a \textbar= b; \\ \hline
+  \char`\^= & Bitwise XOR assignment & a \char`\^= b; \\ \hline
+  \textgreater\textgreater= & Bitwise Right Shift assignment & a \textgreater\textgreater= b; \\ \hline
+  \textless\textless= & Bitwise Left Shift assignment & a \textless\textless= b; \\ \hline
+  \end{tabular}
+\caption{Compound assignment operators}
+\label{table:compoundops}
+\end{table*}
+
+
+
+
+
+
+ 

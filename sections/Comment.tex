@@ -1,0 +1,70 @@
+\section{Comments}
+
+Before we go any further, we should get familiar with the different types of comments \index{comments} available in C. C has two types of comments, namely block and line.  \index{comment block}\index{comment line}Let's take the \textit{hellow2.c} example and insert both block and line comments. Comments are extremely important to explain why particular decisions are made. If we return 6 months later, the comments should help make the code more understandable. In other words, the code plus comments must provide enough basic information to explain the purpose of the code.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File hellow2.c, with block and line comments},captionpos=b]
+ 1 #include <stdio.h>
+ 2
+ 3 /* Line 1
+ 4    Line 2
+ 5    Line 3 This is a block comment and it goes on to multiple lines
+ 6    Line 4 */
+ 7 
+ 8 int main(void) // this is a single comment line 
+ 9 {
+10 printf("Hello World\n");
+11
+12 return 0;
+13 }
+\end{lstlisting}
+
+Block comments start with /* and end with */. They allow for multiple line comments to be embedded into the source code and they are useful when describing more complex concepts. You can see a block comment shown on lines:3-6. The compiler ignores everything in-between the /* and */, so even obsolete or discarded code can placed within the comments. 
+
+By contrast, a line comment simply starts with "//" to the End-Of-Line (EOL). A useful feature if you want to write short comments, as shown in the example on line:8. This type of comment was adopted from the C++ language.
+
+As a good practice it is recommended that you create a standard comment block that explains what a function is designed to achieve before writing the code. This is useful when attempting to build larger projects. This standard comment block describes what the routine is supposed to do, providing more details on the parameters passed into the function as well as the return type with the result. 
+
+An example is shown in listing \ref{stdcommblock} providing the function NAME, function DESCRIPTION, input PARAMETERS, RETURN type, EXAMPLE on how-to-use, and finally a NOTES section covering the side effects. C functions are not pure mathematical functions but functions or procedures that can achieve many objectives including side effects. 
+
+In this book we have not included full comments to save space but in a professional or academic setting we would recommend adopting this approach.\\
+  
+\begin{lstlisting}[language=C,caption={Example function header comment},captionpos=b,label=stdcommblock]
+/*
+ * NAME
+ *
+ *  add
+ *
+ * DESCRIPTION
+ *
+ *  This routine adds two integers together and returns the result as an integer. 
+ *
+ * PARAMETERS
+ *
+ *  int a - first integer 
+ *  int b - second integer
+ *
+ * RETURN
+ *
+ *  integer
+ *
+ * EXAMPLE
+ *
+ *  fortytwo = add(40,2);
+ *
+ *    if (fortytwo!=42)
+ *    { 
+ *    printf("fortytwo not equal to 42 \n");
+ *    return -1;
+ *    }
+ *
+ * NOTES
+ *
+ *  simple routine, no side effect
+ *
+ */
+\end{lstlisting}
+
+
+Finally a general rule when writing C code: make the functions as short as possible. Longer functions are more complex and harder to debug or optimize. Long functions add complexity making it easier to accidentally inject unanticipated mistakes. The general rule-of-thumb for function length is no longer than 100 lines (roughly a screen full). If a function is too long then it is probably better to deconstruct it into smaller pieces. Files longer than 500 lines, or perhaps 1000 lines, are ripe for some form of structural investment.\\
+
+

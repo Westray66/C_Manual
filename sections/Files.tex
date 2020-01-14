@@ -1,0 +1,91 @@
+\section{Source Files} \label{sourcefiles}
+
+The C language has two important file types, namely .c and .h. The .h files are headers \index{.h header files} \index{.c source files} or definitions and the .c files are source code implementations. The .c and .h file types are more stylistic in that they can be used in all sorts of interesting ways. The standard and recommended method is to treat .h files as definitions and .c files as implementation. A good practice for header files is to include the preprocessor directives \#ifndef FILENAME\_H\_ \#define FILENAME\_H\_, to avoid multiple header inclusions. More on this later when we start to discuss large projects and header inclusion headaches.
+
+A C project is made up of a number of .h and .c files. And in essence the header definition .h files express the software contract which is exported and used by the other parts of the project. Or alternatively use as a method to export functions for use by other parts of the program.
+
+Lets walk through a simple example, take the function \textit{add(...)} which has two input parameters, called \textit{int a} and \textit{int b} respectively (see line:1 in listing \ref{addbody}). Both are of type \textit{int}. These parameters are used in the calculation. Return type is also \textit{int} (integer). In the body of the function (denoted by the curly brackets) we carry out the addition and return the result, as shown on line:3.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File add.c, add two integers},captionpos=b,label=addbody]
+ 1 int add(int a, int b)
+ 2 {
+ 3 return a+b; // add two numbers together
+ 4 }
+\end{lstlisting}
+
+Nothing complicated, the code is fairly self-explanatory. Say we save this function to a file called add.c. Now if we want to make the \textit{main(...)} function slightly more complicated by allowing the \textit{add(...)} function to be invoked we simply insert it into the function body as shown on line:7 in listing \ref{helloworld2}. 
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File hellow2.c, invokes add(...) function},captionpos=b,label=helloworld2]
+ 1 #include <stdio.h>
+ 2
+ 3 int main(void)
+ 4 {
+ 5 int result;
+ 6
+ 7 result=add(1,1);
+ 8
+ 9 printf("Hello World, number returned is %d\n",result);
+10
+11 return 0;
+12 }
+\end{lstlisting}
+
+Note in this example you can also see a variation of \textit{printf(...)} which takes the variable \textit{result} and outputs the contents to the console. The output location is designated by \%d which symbolizes where the number will appear in the output string. In this case the number will appear at the end of the line (i.e. just before the newline).\\
+
+If we compile the code now, the C compiler will complain that it doesn't recognize the function \textit{add(...)} on line:7. This means somehow we need to provide a method to define the \textit{add(...)} function so that the compiler can recognize the function call name. This is achieved using a header .h file that describes the function definition. Lets create a header file called \textit{add.h}. And within this file we provide a definition of the function. This function definition is called a function prototype. The compiler processes source code sequentially so a function must be defined before use, either by prototype or with the function implementation itself. This would require the \textit{add(...)} function body to be in the same file, as the caller has to be physically located above the first use.
+
+\begin{lstlisting}[language=C,caption={File add.h, header file},captionpos=b]  
+int add (int a, int b);
+\end{lstlisting}
+
+In listing 6 we have created a function prototype that describes the input-output interface to the \textit{add(...)} function but does not contain the implementation, this code is in the \textit{add.c} file. Unfortunately \textit{hellow2.c} still refuses to compile, so we have to insert another include which loads the definition file. In this case the definition file \textit{add.h}, as shown on line:6 in listing \ref{helloworldcomplete}.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false,caption={File hellow3.c, complete},captionpos=b,label=helloworldcomplete]   
+ 1 /*
+ 2  * IMPORT
+ 3  */
+ 4
+ 5 #include <stdio.h>
+ 6 #include "add.h"
+ 7
+ 8 /*
+ 9  * BODY
+10  */
+11
+12 int main(void)
+13 {
+14 int result;
+15
+16 result = add(1,1); // add 1+1
+17
+18 printf("Hello World, number returned is %d\n",result);
+19
+20 return 0;
+21 }
+
+OUTPUT
+
+Hello World, number returned is 2
+$
+
+\end{lstlisting}
+ 
+There is a slight difference in the two includes used on line:5 and line:6. The standard library inclusion is denoted by \textless{library name.h}\textgreater \, as seen on line:5, whereas the local library inclusion is denoted by "library name.h" on line:6. The different methods is used by the compiler to look along particular file paths. For local include files the compiler searches the current directory /. whereas the standard library search path will be \textit{/usr/local/lib}. 
+
+We can also explicitly provide the complete file path to a header file e.g. "myheaders/example.h".
+
+One extra trick is to stop the same header files from being included multiple times. This is achieved by adding some preprocessor directives, as shown in listing \ref{multiple}. This technique is simple and effective. The technique is to check for a specific macro define. If the macro define has previously been defined then the header is ignored. If the macro define is not defined then the header is loaded.\\
+
+\begin{lstlisting}[language=C,caption={File add.h, full header file},captionpos=b,label=multiple]  
+#ifndef ADD_H_
+#define ADD_H_
+
+// Function Prototypes
+
+int add(int a,int b);
+
+#endif
+\end{lstlisting}
+
+ This is useful when building larger projects. It is quite easy to accidentally include the same .h file multiple times and confuse the compiler. This technique removes the problem of loading the same header file multiple times.\\
+

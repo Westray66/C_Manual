@@ -1,0 +1,237 @@
+\section{Preprocessor} \label{preprocessor}
+
+Preprocessor is exactly what it sounds like, it preprocesses the C source files before compilation. Warning, overuse of the preprocessor directives can make source code confusing and difficult to read. The preprocessor is an extension of the build and is not technically part of the C language. More modern programming languages do not include this feature.
+
+\subsection{\#include}
+
+\index{\#include}
+
+\textit{\#include} imports a file. Essentially there are two header file types, standard and user. Standard header files require a \textless header file.h\textgreater\space and user header files require "header file.h". The standard header files are in specific shared library directories, whereas the user files are searched locally. A hardcoded file path can also be used.
+
+\subsection{\#define}
+
+\index{\#define}
+
+This directive allows for a macro name to be defined. Macros are used extensively throughout C projects. The preprocessor takes the macro name and replaces it with whatever you have defined as the macro to be. It only replaces macro names forward of the definition location, it does not carry out a global find and replace.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File macro1.c, LOG macro},captionpos=b,label=macro1]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 #define ANGLE 34
+ 4 #define LOG(s)   printf("LOG:%s\n",s)
+ 5 
+ 6 
+ 7 int main(void)
+ 8 {
+ 9 LOG(" enter: main");
+10 
+11   printf("Hello World, angle %d\n",ANGLE);
+12 
+13 LOG(" exit: main\n");
+14 return 0;
+15 }
+
+INTERACTION
+
+$ cc macro1.c
+$ ./a.out
+LOG: enter: main
+Hello World, angle 34
+LOG: exit: main
+$
+
+\end{lstlisting}
+
+Listing \ref{macro1} shows a simple and a more complex define. The first simple \textit{\#define} sets \textit{ANGLE} to 34. Every occurrence of ANGLE within the source code gets converted to 34.. The second \textit{\#define} \textit{LOG(s)} takes an argument and inserts that argument into a \textit{printf(...)} function call.
+
+\subsection{\#undef}
+
+\index{\#undef}
+
+This directive is the opposite to \textit{\#define}, it simply undoes an already defined macro. If a macro name has been set it can be unset. This is useful when redefining a macro, undef removes the macro and allows it to be defined again.
+
+\subsection{\#ifdef}
+
+\index{\#ifdef}
+
+The \textit{\#ifdef} directive is used to control flow within the source code. For example, placing a file in DEBUG mode. This is useful if there is a need to have more diagnostic information, otherwise the program compiles normally. In essence \textit{\#ifdef} provides different compile output options depending upon the requirement.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File macro2.c, \#ifdef DEBUG macro},captionpos=b,label=macro2]
+
+ 1 #include <stdio.h>
+ 2 #include <time.h>
+ 3 #include <unistd.h>
+ 4 
+ 5 // #define DEBUG 
+ 6 
+ 7 int main(void)
+ 8 {
+ 9 #ifdef DEBUG
+10 time_t currtime = time(NULL);
+11 #endif
+12 
+13   printf("Hello World\n");
+14   sleep(3); // wait 3 seconds
+15 
+16 #ifdef DEBUG
+17 printf("debug: time take: %ld\n",time(NULL)-currtime);
+18 #endif
+19 
+20 return 0;
+21 }
+
+INTERACTION
+
+$ cc -DDEBUG macro2.c
+$ ./a.out
+Hello World
+debug: time take: 3
+$ cc macro2.c
+$ ./a.out
+Hello World
+$
+
+\end{lstlisting}
+
+
+Listing \ref{macro2} shows a \textit{\#ifdef} example. When the macro DEBUG is defined the lines:10:17 becomes part of the source code otherwise both lines are ignored by the compiler. MACROS can be hardcoded or passed into the source via the compiler using the \textit{-D} compiler directive, as shown in the INTERACTION part. 
+
+\subsection{\#ifndef}
+
+\index{\#ifndef}
+
+The \textit{\#ifndef} directive is used to control flow within the source code. For example, by placing a file in NODEBUG mode diagnostic information is limited otherwise the program by default runs in full DEBUG or diagnostic mode.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File macro3.c, \#ifndef NODEBUG macro},captionpos=b,label=macro3]
+
+ 1 #include <stdio.h>
+ 2 #include <time.h>
+ 3 #include <unistd.h>
+ 4 
+ 5 int main(void)
+ 6 {
+ 7 #ifndef NODEBUG
+ 8 time_t currtime = time(NULL);
+ 9 #endif
+10 
+11   printf("Hello World\n");
+12   sleep(3); // wait 3 seconds
+13 
+14 #ifndef NODEBUG
+15 printf("debug: time take: %ld\n",time(NULL)-currtime);
+16 #endif
+17 
+18 return 0;
+19 }
+
+INTERACTION 
+
+$ cc macro3.c
+$ ./a.out
+Hello World
+debug: time take: 3
+$ 
+
+\end{lstlisting}
+
+Listing \ref{macro3} shows an opposite example to \textit{\#ifdef}. When the macro NODEBUG is defined lines:8:15 don't become part of the source code otherwise by default the lines become part of the source code.
+
+\subsection{\#if, \#elif and \#else}
+
+\index{\#if}
+\index{\#elif}
+\index{\#else}
+
+These directives provide a more traditional decision making control flow for the preprocessor.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File macro4.c, using \#define macro},captionpos=b,label=macro4]
+
+ 1 #include <stdio.h>
+ 2 #include <time.h>
+ 3 #include <unistd.h>
+ 4 
+ 5 #define BUFSIZE 42
+ 6 
+ 7 int main(void)
+ 8 {
+ 9 int margin;
+10 
+11 #if defined BUFSIZE && BUFSIZE > 1024
+12 margin = 2;
+13 #elif BUFSIZE > 624
+14 margin = 1;
+15 #else
+16 margin = 0;
+17 #endif
+18 
+19 printf("margin=%d\n",margin);
+20 return 0;
+21 }
+22 
+23 
+
+INTERACTION
+
+$ cc macro4.c
+$ ./a.out
+margin=0
+$ 
+
+\end{lstlisting}
+
+
+The listing \ref{macro4} shows an example using the \textit{\#if}, \textit{\#elif} and \textit{\#else} preprocessor directives. The example sets the BUFSIZE macro to 42. If the BUFSIZE macro is larger than 1024 then the \textit{margin} variable is assigned the value 2 on line:12. If BUFSIZE is larger than 624 and less than 1025 then the \textit{margin} variable is assigned the value 1 on line:14, otherwise \textit{margin} is assigned the value 0. In the example the BUFSIZE macro is set to 42 which means the \textit{margin} becomes 0 on line:16.
+
+\subsection{\#error}
+
+\index{\#error}
+
+The \textit{\#error} directive halts compilation with an error message.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File macro5.c, using \#if, \#else, \#error and \#endif},captionpos=b,label=macro5]
+
+ 1 #include <stdio.h>
+ 2 #include <time.h>
+ 3 #include <unistd.h>
+ 4 
+ 5 #define BUFSIZE 700
+ 6 
+ 7 int main(void)
+ 8 {
+ 9 int margin;
+10 
+11 #if defined BUFSIZE && BUFSIZE > 1024
+12 margin = 2;
+13 #elif BUFSIZE > 624
+14 #error "BUFSIZE is wrong size"
+15 #else
+16 margin = 0;
+17 #endif
+18 
+19 printf("margin=%d\n",margin);
+20 return 0;
+21 }
+
+INTERACTION 
+
+$ cc macro5.c
+macro5.c:14:3: error: "BUFSIZE is wrong size"
+#error "BUFSIZE is wrong size"
+  ^
+1 error generated.
+$  
+
+\end{lstlisting}
+
+Listing \ref{macro5} shows an example of \textit{\#error}. The \textit{\#error} on line:14 forces a halt of compilation. The BUFSIZE macro is set to 700 on line:5 and it subsequently causes an compilation error on line:14.
+
+\subsection{\#pragma}
+
+\index{\#pragma}
+
+
+Sends additional advice back to the C compiler. It is dependent upon the the compiler being used. \textit{\#pragma} gives a hint to the compiler, for example \textit{ignore warnings} or \textit{don't optimize}. 
+
+ 
+

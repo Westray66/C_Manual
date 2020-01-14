@@ -1,0 +1,102 @@
+\section{Miscellaneous}
+
+This section contains some useful functions that don't fit into the framework but are really useful functions when programming. 
+
+\subsection{system(...)}
+
+\index{system(...)}
+
+The \textit{system(...)} function is found in \textit{stdio.h}. It allows for interaction with the command line shell. This is useful when having to execute certain commands while under program control. Most of the commands available in Linux also have a program interface but sometimes it is easier to call the command directly via the host shell.\\
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File: system.c},captionpos=b,label=system]
+
+ 1 #include <stdio.h>
+ 2 #include <stdlib.h>
+ 3 
+ 4 int main(void)
+ 5 {
+ 6 FILE *HANDLE;
+ 7 char user[20];
+ 8 
+ 9   if (!system("whoami > me.dat"))
+10     printf("success\n");
+11   else
+12     printf("failed\n");
+13 
+14 HANDLE=fopen("me.dat","r");
+15 
+16   if (HANDLE==NULL)
+17   {
+18   perror("file me.dat");
+19   exit(EXIT_FAILURE);
+20   }
+21 
+22 fscanf(HANDLE,"%s",user);
+23 fclose(HANDLE);
+24 
+25 printf("user: %s\n",user);
+26 
+27 return 0;
+28 }
+
+INTERACTION
+
+$ cc system.c
+$ ./a.out
+success
+user: proteus
+$
+
+\end{lstlisting}
+
+Listing \ref{system} shows code for a program which sends a command string to the shell. The command string both invokes the command \textit{whoami} and redirects the output to a file called \textit{me.dat} line:9. This file is then read and the active user name is then displayed on line:25. The INTERACTION part shows that the \textit{system(...)} function was successful and that the user is \textit{proteus}.
+
+\subsection{sprintf(...)}
+
+\index{sprintf(...)}
+
+\textit{sprintf(...)} is a variation of the \textit{printf(...)} function. Instead of directing the output to a stream, it directs the output to a string. This can be extremely useful for a number of activities including building dynamic strings like file paths. Care has to be given that there is enough space for the created string.
+
+\begin{lstlisting}[language=C,showstringspaces=false, caption={File: sprintf.c},captionpos=b,label=sprintf]
+
+ 1 #include <stdio.h>
+ 2 
+ 3 void new_file_path(char *filepath, char *filename)
+ 4 {
+ 5 sprintf(filepath,"project/special/%s",filename);
+ 6 }
+ 7 
+ 8 void clear(void)
+ 9 {    
+10   while (getchar() != '\n' ); // clear stdin
+11 }
+12 
+13 int main(void)
+14 {
+15 char project[40];
+16 char filepath[256];
+17 
+18 printf("enter project  name?\n");
+19 scanf("%s", project); // scan for user input
+20 clear(); // clear buffer
+21 new_file_path(filepath,project);
+22 printf("filepath: %s\n",filepath);
+23 
+24 return 0;
+25 }
+
+INTERACTION
+
+$ cc sprintf.c
+$ ./a.out
+enter project  name?
+hello.c
+filepath: project/special/hello.c
+$
+
+\end{lstlisting}
+
+Listing \ref{sprintf} shows a program that takes user input, as shown on line:19. The input string \textit{project} is used to construct a file path string, shown on line:5. The program then outputs the newly created file path on line:22. In the INTERACTION part we can see that the user typed in \textit{hello.c}. The program then appended \textit{project/special/} onto the file name to give a complete file path of \textit{project/special/hello.c}.
+
+
+

@@ -1,0 +1,95 @@
+\section{Standard C Libraries}
+
+The C Programming Language doesn't just include the core language but also includes supporting libraries. These libraries allow C source code to be relatively portable between hardware architectures and Operating Systems. The use of libraries also removes the need to duplicate or re-invent particular features. 
+
+The libraries reduce the amount of overall testing since the standard libraries have already been vigorously tested before being released. As previously mentioned, C was originally developed in 1972 and since that time it has gone through a number of major language and library revisions. The most notable recent revisions are shown in table \ref{table:revisions}.\\ 
+
+\index{NA1}
+\index{C11}
+\index{C99}
+
+\begin{table*}[ht]
+\centering
+  \begin{tabular}{ | c | c | l |}
+    \hline
+    SHORT NAME & YEAR & DESCRIPTION \\ \hline
+    NA1 & 1995 & ISO/AMD1 9899:1995  \\ \hline
+    C99 & 1999 & ISO/IEC 9899:1999  \\ \hline
+    C11 & 2011 & ISO/IEC 9899:2011  \\ \hline  
+  \end{tabular}
+\caption{Revision history}
+\label{table:revisions}
+\end{table*}
+
+Just taking one library example, the \textit{stdbool.h} library. This library was introduced in the C99 revision. This was 27 years after the language first appeared. \textit{stdbool.h} standardizes the boolean datatype. For more information see section \ref{stdbool} on page \pageref{stdbool}. 
+
+\clearpage
+
+Table \ref{Table:StandardLibraries} shows the standard libraries provided with the C Programming Language. It is worth having a rough understanding of the library landscape. To help the learning curve the USEFUL column marks a subset of libraries to review first. It should be noted that the libraries provided are just the standard C libraries. There are other common library standards used with C. As an example the POSIX standard. POSIX introduces a number of important features found in Unix based Operating Systems.\\
+
+\index{POSIX}
+
+\begin{table}
+\centering
+  \begin{tabular}{ | c | l | c | l |}
+    \hline
+    USEFUL & NAME & REVISION & DESCRIPTION \\ \hline
+    x          & assert.h &  & assert macro \\ \hline
+               & complex.h & C99 & handles complex numbers \\ \hline
+    x		   & ctype.h & & character manipulation e.g. upper to lower \\ \hline
+    x          & errno.h &  & error types \\ \hline
+               & fenv.h & C99 & control floating point environment \\ \hline
+               & float.h &  & macro floating point constants \\ \hline
+               & inttypes.h & C99 & exact width types \\ \hline
+               & iso646.h & NA1 & ISO 646 character set \\ \hline
+               & limits.h &  & macros constants for integers \\ \hline
+               & locale.h &  & localization functions \\ \hline
+    x          & math.h &  & common maths functions \\ \hline
+               & setjmp.h &  & non local jumps \\ \hline
+               & signal.h &  & signal handling functions \\ \hline
+               & stdalign.h &  C11 & align objects \\ \hline
+               & stdarg &  & varying number of arguments \\ \hline
+               & stdatomic.h & C11 & atomic operations \\ \hline
+    x          & stdbool.h & C99 & boolean datatype \\ \hline
+               & stddef.h &  & useful types and macros \\ \hline
+    x          & stdint.h & C99 & width integer types \\ \hline
+    x          & stdio.h &  & core input/output functions \\ \hline
+    x          & stdlib.h &  & misc. useful functions \\ \hline
+               & stdmoreturn.h & C11 & non-returning functions \\ \hline
+    x          & string.h &  & string handling functions \\ \hline
+               & tgmath.h & C99 & type-generic mathematical functions \\ \hline
+               & threads.h & C11 & thread handling \\ \hline
+    x		   & time.h &  & date and time functions \\ \hline
+               & uchar.h & C11 & UNICODE characters \\ \hline
+               & wchar.h & NA1 & wide string handling functions \\ \hline
+               & wctype.h & NA1 & useful functions for wide characters \\ \hline   
+  \end{tabular}
+\caption{Standard C libraries}
+\label{Table:StandardLibraries}
+\end{table}
+
+If we plan to use many libraries, it is worth creating a single header file that incorporates all the header files we plan to use. This way if we want to use those libraries in our project all we have to do is include a single file. This can save a lot of time and pain.
+
+\begin{lstlisting}[language=C,caption={File all.h, universal header file},captionpos=b,label=headers]  
+
+#ifndef ALL_H
+#define ALL_H
+
+// Standard C Libraries
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+// User Header Files
+
+#include "add.h"
+#include "sub.h"
+
+#endif
+\end{lstlisting}
+
+Listing \ref{headers}, shows a header file called \textit{all.h}. This header file brings in the header file for a number of popular libraries i.e. \textit{stdio.h},\textit{stdlib.h},\textit{string.h},\textit{stdbool.h} and \textit{stdint.h}. As well as a number of user local headers i.e. \textit{add.h} and \textit{sub.h}. Each .c implementation file can simply include the \textit{all.h} header. This header will bring in all the necessary libraries required. This can save a lot of time in more complex projects.
+
