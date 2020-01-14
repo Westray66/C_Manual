@@ -1,0 +1,133 @@
+% ******************************************************************************
+% *
+% * MODULE Assignment 1
+% *
+% * DESCRIPTION
+% *
+% * This file contains the setup procedure for Raspberry Pi 3
+% *
+% * AUTHOR
+% *
+% * Andrew N. Sloss
+% *
+% *
+
+\documentclass{article} 
+\usepackage{blindtext}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[section]{placeins}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{lmodern}
+% \renewcommand{\familydefault}{\sfdefault}
+\usepackage{float}
+\usepackage{makeidx}
+\newcommand*{\escape}[1]{\texttt{\textbackslash#1}}
+
+\lstset{language=C}  
+
+\graphicspath{{../pdf/}{images/}}
+
+% \renewcommand{\listfigurename}{Figures}
+ 
+\renewcommand{\listtablename}{Tables}
+
+\setlength\parindent{0pt}
+
+\makeindex
+
+\begin{document}
+
+
+\title{\textbf{C Language - A Modern Approach to Embedded Programming}}
+\author{Andrew N. Sloss}
+\date{\today}
+
+
+\maketitle
+\begin{abstract}
+\noindent
+This book is an introduction to the \textbf{C Programming Language}. It is not meant to be an exhaustive introduction or even a replacement of the available teaching books. It has been written to get motivated people up to speed quickly and become somewhat proficient in C, with an emphasis on embedded systems. Use this text as a springboard to explore more.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\lstlistoflistings
+
+\newpage
+
+\thispagestyle{empty}
+ 
+\listoffigures
+ 
+\listoftables
+ 
+\clearpage
+ 
+\pagenumbering{arabic}
+
+
+% *****
+%
+% Introduction
+%
+% *****
+
+\input{sections/Acknowledgements.tex}
+\newpage
+\input{sections/Introduction.tex}
+\newpage
+\input{sections/Hello.tex}
+\newpage
+\input{sections/Comment.tex} 
+\newpage
+\input{sections/Files.tex}
+\newpage
+\input{sections/Compile.tex}  
+\newpage
+\input{sections/Macros.tex} 
+\newpage
+\input{sections/Standard.tex}
+\newpage
+\input{sections/Variables.tex}  
+\newpage
+\input{sections/Operators.tex}
+\newpage
+\input{sections/Control.tex} 
+\newpage
+\input{sections/Error.tex}
+\newpage
+\input{sections/Pointers.tex} 
+ \newpage
+\input{sections/Arrays.tex}
+\newpage
+\input{sections/Strings.tex}
+\newpage
+\input{sections/Layout.tex}  
+\newpage
+\input{sections/Memory.tex} 
+\newpage
+\input{sections/Assembler.tex} 
+\newpage
+\input{sections/Hardware.tex}
+\newpage
+\input{sections/Structures.tex}
+\newpage
+\input{sections/FileIO.tex} 
+\newpage
+\input{sections/Time.tex}
+\newpage
+\input{sections/Miscellaneous.tex}  
+\newpage
+\input{sections/Hints.tex}  
+\newpage
+\input{sections/References.tex}  
+\newpage
+\printindex
+\end{document}
+
